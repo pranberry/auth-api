@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,6 +15,12 @@ type service_user struct {
     Password string     `json:"password"`
     Location string
     IP_addr string
+}
+var master_user_db = make(map[string]service_user)
+
+type ResponseStruct struct {
+    Message string `json:"message"`
+    Username string `json:"username,omitempty"`
 }
 
 func main() {
@@ -32,24 +37,14 @@ func main() {
 	   a multiplexer, see the path, and call the specifiec handler function
 	   calling handleFunc add a rule to the multiplexer.
 	   there is a default multiplexer, and you can write a custom multiplexer
-	*/
+	*/ 
 }
 
 // the *http.Request is, you guessed it, a pointer
 // it is a pointer to the incoming http.request object...it is not a copy
 func health_handler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("<h1>OKAY</h1>"))
+	writer.Write([]byte("<h1>ALIVE AND WELL...ish</h1>"))
     fmt.Println(request.Method)
-}
-
-/* handler function
-    a ResponseWriter writes back to the client
-    a Request gets intput from the client request
-*/
-func login_handler(writer http.ResponseWriter, request *http.Request) {
-    fmt.Printf("login: %v\n", request.Method)
-    writer.Header().Add("YO","mama")
-    writer.WriteHeader(200)
 }
 
 func register_handler(writer http.ResponseWriter, request *http.Request){
@@ -64,12 +59,19 @@ func register_handler(writer http.ResponseWriter, request *http.Request){
         return
     }
 
+    // check if user_name
+    _, user_exist := master_user_db[user.User_Name]
+    if user_exist {
+        http.Error(writer, "username taken. pick another", http.StatusBadRequest)
+        return
+    }
+
     hashed_pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
     if err != nil {
         http.Error(writer, "error hashing password", http.StatusInternalServerError)
         return
     }
-    
+
     user.Password = string(hashed_pass)
     fmt.Println(request.RemoteAddr)
     ip, _, err := net.SplitHostPort(request.RemoteAddr)
@@ -79,15 +81,55 @@ func register_handler(writer http.ResponseWriter, request *http.Request){
     }
     user.IP_addr = ip
     user.Location = "Internet"
+
+    master_user_db[user.User_Name] = user
+}
+
+/* handler function
+    a ResponseWriter writes back to the client
+    a Request gets intput from the client request
+*/
+func login_handler(writer http.ResponseWriter, request *http.Request) {
+    var login_user_data service_user
+    err := json.NewDecoder(request.Body).Decode(&login_user_data)
+    if err != nil {
+        http.Error(writer, "Request Denied", http.StatusBadRequest)
+        return        
+    }
+
+    user_data, user_exist := master_user_db[login_user_data.User_Name]
+    if !user_exist{
+        http.Error(writer, "username not found. register first", http.StatusBadRequest)
+        return
+    }
+
+    // if user exists, validate password
+    err = bcrypt.CompareHashAndPassword([]byte(user_data.Password), []byte(login_user_data.Password))
+    if err != nil{
+        http.Error(writer, "Password is incorrect", http.StatusBadRequest)
+        fmt.Printf("error: %v\n", err)
+        return
+    } else {
+        fmt.Println("Password and hassh match...login successful")
+        resp_message := ResponseStruct{
+            Message: "Login Successful",
+            Username: user_data.User_Name,
+        }
+        writer.Header().Set("Content-type","application/json")
+        writer.WriteHeader(http.StatusOK)
+        json.NewEncoder(writer).Encode(resp_message)
+    }
+
+
+    // update location and IP
+    // hail satan
+
+
 }
 
 /*
     TO-DO
-    register_hander first:
-        request body. assign related values to a coherent struct
-        check if uname exists, if so, then reject with good message. what error code is used here?
-        if all clear, store to in-mem data store. 
     login_hander first:
         auth and return a success message
-    
+    - evemtually, add https to the mix, so we're getting encrypted data
 */
