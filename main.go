@@ -66,7 +66,7 @@ func register_handler(writer http.ResponseWriter, request *http.Request){
         return
     }
 
-    hashed_pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
+    hashed_pass, err := bcrypt.GenerateFromPassword([]byte(user.Password),bcrypt.DefaultCost)
     if err != nil {
         http.Error(writer, "error hashing password", http.StatusInternalServerError)
         return
@@ -110,7 +110,7 @@ func login_handler(writer http.ResponseWriter, request *http.Request) {
         fmt.Printf("error: %v\n", err)
         return
     } else {
-        fmt.Println("Password and hassh match...login successful")
+        fmt.Println("Password and hash match...login successful")
         resp_message := ResponseStruct{
             Message: "Login Successful",
             Username: user_data.User_Name,
@@ -121,9 +121,6 @@ func login_handler(writer http.ResponseWriter, request *http.Request) {
     }
 
 
-    // update location and IP
-    // hail satan
-
 
 }
 
@@ -131,5 +128,7 @@ func login_handler(writer http.ResponseWriter, request *http.Request) {
     TO-DO
     login_hander first:
         auth and return a success message
-    - evemtually, add https to the mix, so we're getting encrypted data
+    - write tests
+    - change all error messages to send back JSON, not plaintext
+    - eventually, add https to the mix, so we're getting encrypted data
 */
