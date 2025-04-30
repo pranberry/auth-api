@@ -1,11 +1,13 @@
 package user
 
 import (
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"jwt-auth/auth"
+	"net/http"
+
 	"golang.org/x/crypto/bcrypt"
 )
-
 
 /* handler function
 	a http.Request gets intput from the client request...
@@ -31,12 +33,17 @@ func LoginHandler(writer http.ResponseWriter, request *http.Request) {
         http.Error(writer, "Password is incorrect", http.StatusBadRequest)
         return
     } else {
-        resp_message := ResponseStruct{
-            Message: "Login Successful",
-            Username: user_data.User_Name,
+        jwt_resp, err := auth.CreateJWT(user_data.User_Name)
+        if err != nil {
+            http.Error(writer, "Error Creating JWT", http.StatusInternalServerError)
+            return
         }
-        writer.Header().Set("Content-type","application/json")
+        jwt_resp.Message = "Login Successful"
+        fmt.Println("JWT before writing headers: ",jwt_resp.AccessToken)
+        writer.Header().Set("Content-Type","application/json")
         writer.WriteHeader(http.StatusOK)
-        json.NewEncoder(writer).Encode(resp_message)
+        json.NewEncoder(writer).Encode(jwt_resp)
+        return
+        
     }
 }

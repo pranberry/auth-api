@@ -3,14 +3,18 @@ package main
 import (
 	"net/http"
 	"jwt-auth/user"
+	"jwt-auth/secret"
 )
 
 func main() {
 	// HandleFunc is from the http lib
 	// associates a URL path with a function
 	http.HandleFunc("/health", health_handler)
+
 	http.HandleFunc("/login", user.LoginHandler)
 	http.HandleFunc("/register", user.RegisterHandler)
+	
+	http.HandleFunc("/secret", secret.SecretHandler)
 
 	//listen on port 8080...blocking call
 	http.ListenAndServe(":8080", nil)
