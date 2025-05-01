@@ -3,7 +3,9 @@ package user
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"jwt-auth/models"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -20,13 +22,15 @@ var legit_request_body_reusable = map[string]string{
 
 func resetDB(){
 	hashed_password, _ := bcrypt.GenerateFromPassword([]byte(legit_request_body_reusable["password"]), bcrypt.DefaultCost)
-	default_test_user := ServiceUser {
+
+	default_test_user := models.ServiceUser {
 		User_Name: legit_request_body_reusable["username"],
 		Password: string(hashed_password),
 		Location: "Internet",
 		IP_addr: "127.0.0.1",
 	}
-	MasterUserDB[legit_request_body_reusable["username"]] = default_test_user
+	fmt.Println(default_test_user)
+	//MasterUserDB[legit_request_body_reusable["username"]] = default_test_user
 }
 
 /*

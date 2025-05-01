@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"jwt-auth/auth"
+	"jwt-auth/db"
+	"jwt-auth/models"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -14,16 +16,16 @@ import (
     a http.ResponseWriter writes back to the client...headers, body, codes...
 */
 func LoginHandler(writer http.ResponseWriter, request *http.Request) {
-    var login_user_data ServiceUser
+    var login_user_data models.ServiceUser
     err := json.NewDecoder(request.Body).Decode(&login_user_data)
     if err != nil {
         http.Error(writer, "Request Denied", http.StatusBadRequest)
         return        
     }
     // check for user existance in db/mem
-    user_data, user_exist := MasterUserDB[login_user_data.User_Name]
+    user_data, err := db.GetUserByName(login_user_data.User_Name)
 
-    if !user_exist{
+    if err != nil{
         http.Error(writer, "username not found. register first", http.StatusBadRequest)
         return
     }

@@ -3,8 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"jwt-auth/db"
-	"jwt-auth/user"
+	"jwt-auth/models"
 )
 
 /*
@@ -60,21 +59,20 @@ func GetDB() *sql.DB {
 /*
 	- get the user record from the user's table
 */
-func GetUserByName(username string) (*user.ServiceUser, error) {
+func GetUserByName(username string) (*models.ServiceUser, error) {
 
 	db := GetDB()
-	stmt, err := db.Prepare("SELECT username, password, location, ip_addr FROM USERS WHERE USERNAME = $1")
-	defer stmt.Close() // very interesting. when you defer it closes the statement when the func ends
-		
+	stmt, err := db.Prepare("SELECT username, password, location, ip_addr FROM USERS WHERE USERNAME = $1")	
 	if err != nil{
 		return nil, fmt.Errorf("failed to prepare statement: %v", err)
 	}
+	defer stmt.Close() // very interesting. when you defer it closes the statement when the func ends
 
 	// rows must be queried and scanned into a struct
 	// QueryRow returns a non-nil value, always. if scan turns up no data, that is, if there a no rows, then you get an error
 	// you gotta scan it into your struct
-	var user_data user.ServiceUser
-	row := db.QueryRow(username)
+	var user_data models.ServiceUser
+	row := stmt.QueryRow(username)
 	err = row.Scan(
 		&user_data.User_Name, &user_data.Password, &user_data.Location, &user_data.IP_addr,
 	)
@@ -85,4 +83,19 @@ func GetUserByName(username string) (*user.ServiceUser, error) {
 		return &user_data, nil
 	}
 
+}
+
+func RegisterUser(newUser models.ServiceUser) error {
+	db := GetDB()
+	stmt, err := db.Prepare("INSERT INTO USERS (username, password, location, ip_addr) values ($1, $2, $3, $4)")
+	if err != nil{
+		return fmt.Errorf("failed to prepare statement: %v", err)		
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(newUser.User_Name, newUser.Password, newUser.Location, newUser.IP_addr)
+	if err != nil{
+		return fmt.Errorf("failed to save user to db: %v", err)
+	}
+	return nil
 }

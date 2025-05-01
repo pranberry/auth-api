@@ -1,4 +1,10 @@
-package user
+package models
+
+/* 
+	- moved the service model here because it avoids circular dependencies which came up when it was in user.go
+	- the struct is used by multiple packages (db, user, etc). so better to move it out in a central place
+	- models is place for shared models only, not a junk drawer!
+*/
 
 type ServiceUser struct {
     // in GO, field names should start with capital letters to be unmarshaled (decoded from JSON)
@@ -8,7 +14,7 @@ type ServiceUser struct {
     Location string
     IP_addr string
 }
-var MasterUserDB = make(map[string]ServiceUser)
+
 
 type ResponseStruct struct {
     Message string `json:"message"`

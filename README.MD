@@ -50,6 +50,7 @@ So what did I learn?
         - you can "spread" it into a function by doing:
             - Foo(slc...)
     - neato!
+- that native error type is hella cool
 
 - This is actually a great little project for learning a lang.
     - hiting a lot of core functionality of a lang here
@@ -86,3 +87,6 @@ Best Practices: what i learned as i went along:
 - Queried rows must be scanned
     - don't query a column, that you don't want scanned
     - though you can ignore queried columns
+- Best practice for returns is (T, err). not (T, bool)
+    - (T, err) is much more specific
+    - (T, bool) is okay for in-mem lookups (checking if val exists in map)

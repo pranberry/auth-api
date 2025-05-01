@@ -1,17 +1,19 @@
 package user
 
 import (
-	"net/http"
 	"encoding/json"
-	"golang.org/x/crypto/bcrypt"
+	"jwt-auth/db"
+	"jwt-auth/models"
 	"net"
+	"net/http"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /*
 	- the *http.Request is, you guessed it, a pointer to the http.request object
 */
 func RegisterHandler(writer http.ResponseWriter, request *http.Request){
-    var user ServiceUser
+    var user models.ServiceUser
     err := json.NewDecoder(request.Body).Decode(&user)
     if err != nil{
         http.Error(writer, "invalid json", http.StatusBadRequest)
@@ -24,8 +26,10 @@ func RegisterHandler(writer http.ResponseWriter, request *http.Request){
 
     // check if user_name exists
     // the two-val assignment provides: val if key exists, bool that key exists
-    _, user_exist := MasterUserDB[user.User_Name]
-    if user_exist {
+    //_, user_exist := MasterUserDB[user.User_Name]
+    service_user, err := db.GetUserByName(user.User_Name)
+
+    if service_user != nil {// service user should be nil for an non-existiant user 
         http.Error(writer, "username taken. pick another", http.StatusBadRequest)
         return
     }
@@ -44,5 +48,17 @@ func RegisterHandler(writer http.ResponseWriter, request *http.Request){
     user.IP_addr = ip
     user.Location = "Internet"
 
-    MasterUserDB[user.User_Name] = user
+
+    err = db.RegisterUser(user)
+    if err != nil{
+        http.Error(writer, "Failed to register user", http.StatusInternalServerError)
+        return
+    }else{
+        resp := models.ResponseStruct{}
+        resp.Message = "user created successfully"
+        resp.Username = user.User_Name
+        writer.Header().Set("Content-Type","application/json")
+        writer.WriteHeader(http.StatusCreated)
+        json.NewEncoder(writer).Encode(resp)
+    }
 }
