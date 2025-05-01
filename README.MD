@@ -74,3 +74,15 @@ ToDo:
 - Add a postgres database
     - this, in general, could be the backend for all JWT Rest projects (any lang)
 - Instead of a simple secret key for signing, impliment public-private infra
+- rename "auth" folder to token
+
+
+
+Best Practices: what i learned as i went along:
+- structs over maps (always)
+- defer stmt.Close() when preparing statement
+    - very interesting. when you defer it closes the statement when the func ends
+    - no need to explictly close elsewhere (unless you need to for performance reasons)
+- Queried rows must be scanned
+    - don't query a column, that you don't want scanned
+    - though you can ignore queried columns

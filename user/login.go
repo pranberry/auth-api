@@ -20,8 +20,9 @@ func LoginHandler(writer http.ResponseWriter, request *http.Request) {
         http.Error(writer, "Request Denied", http.StatusBadRequest)
         return        
     }
-
+    // check for user existance in db/mem
     user_data, user_exist := MasterUserDB[login_user_data.User_Name]
+
     if !user_exist{
         http.Error(writer, "username not found. register first", http.StatusBadRequest)
         return

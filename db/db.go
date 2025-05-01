@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"jwt-auth/db"
+	"jwt-auth/user"
 )
 
 /*
@@ -37,4 +39,50 @@ func InitDB(user, dbname string) error {
 // return db
 func GetDB() *sql.DB {
 	return ACTIVE_DB
+}
+
+
+/*
+	WHATS NEXT?
+	- query/select db for an existing user. register and login both need to do this
+		- the data the gets returned, need to get marshalled into JSON
+		- the data has to fit the existing structure of MasterUserDB ( map[string]ServiceUser )
+		- basically a swap-in
+		- what would be a good time to load the database into masteruserdb for the first time?
+			- this seems like an important question!
+			- or should it even be done? just load one item per query. no need to hold it all in mem, dumbo!
+	- create new/insert user function
+	- create new/insert jwt function
+	- also, modify tests user/jwt to do testing with db
+
+*/
+
+/*
+	- get the user record from the user's table
+*/
+func GetUserByName(username string) (*user.ServiceUser, error) {
+
+	db := GetDB()
+	stmt, err := db.Prepare("SELECT username, password, location, ip_addr FROM USERS WHERE USERNAME = $1")
+	defer stmt.Close() // very interesting. when you defer it closes the statement when the func ends
+		
+	if err != nil{
+		return nil, fmt.Errorf("failed to prepare statement: %v", err)
+	}
+
+	// rows must be queried and scanned into a struct
+	// QueryRow returns a non-nil value, always. if scan turns up no data, that is, if there a no rows, then you get an error
+	// you gotta scan it into your struct
+	var user_data user.ServiceUser
+	row := db.QueryRow(username)
+	err = row.Scan(
+		&user_data.User_Name, &user_data.Password, &user_data.Location, &user_data.IP_addr,
+	)
+
+	if err != nil{
+		return nil, fmt.Errorf("no user found: %v", err)
+	}else{
+		return &user_data, nil
+	}
+
 }

@@ -1,9 +1,11 @@
 package main
 
 import (
-	"net/http"
-	"jwt-auth/user"
+	"fmt"
+	"jwt-auth/db"
 	"jwt-auth/secret"
+	"jwt-auth/user"
+	"net/http"
 )
 
 func main() {
@@ -17,7 +19,12 @@ func main() {
 	http.HandleFunc("/secret", secret.SecretHandler)
 
 	//listen on port 8080...blocking call
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil{
+		fmt.Printf("died starting server: %v",err)
+	}else{
+		db.InitDB("token_master", "jwt_users")
+	}
 	/*
 	   nil is the multiplexer...which is kinda like a switchboard.
 	   a multiplexer, sees the path, and call the specifiec handler function

@@ -7,8 +7,8 @@
 
 BEGIN;
 CREATE TABLE IF NOT EXISTS users (
-    username TEXT NOT NULL,
     id serial PRIMARY KEY,
+    username TEXT NOT NULL,
     password TEXT NOT NULL,
     location TEXT,
     ip_addr inet,
@@ -16,8 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS tokens (
-    jwt_token TEXT NOT NULL,
     user_id integer references users(id) on delete cascade,
+    jwt_token TEXT NOT NULL,
     created_at timestamp,
     expires_at timestamp
 );
@@ -37,4 +37,20 @@ alter database jwt_users owner to token_master;
 alter table users owner to token_master;
 alter table tokens owner to token_master;
 alter table secrets owner to token_master;
+commit;
+
+-- changed the users and tokens table, so had to drop them
+-- had to recreate, but then i also have to reapply ownerships
+-- so creatign a schema, adding tables to that schema and letting token_master own schema
+begin;
+create schema jwt_auth;
+alter schema jwt_auth owner to token_master;
+ALTER ROLE token_master SET search_path TO jwt_auth;
+alter table users set schema jwt_auth;
+alter table tokens set schema jwt_auth;
+alter table secrets set schema jwt_auth;
+
+ALTER ROLE token_master SET search_path TO jwt_auth;
+
+alter table users add constraint unique_username unique (username);
 commit;
