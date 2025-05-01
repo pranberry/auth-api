@@ -28,7 +28,7 @@ type JWTResponseStruct struct{
 
 func CreateJWT(username string) (JWTResponseStruct, error) {
 	new_token := jwt.NewWithClaims(
-		jwt.SigningMethodHS256, 
+		jwt.SigningMethodHS256,
 		jwt.RegisteredClaims{
 			Issuer : "SCDP",
 			Subject: username,
