@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"jwt-auth/models"
+	_ "github.com/lib/pq"
 )
 
 /*
@@ -19,11 +20,15 @@ func InitDB(user, dbname string) error {
 	// default host is localhost and port is 5432, i don't need to change that.
 	// dsn stands for DATA SOURCE NAME
 	DSN := fmt.Sprintf(
-		"user=%s dbname=%s sslmode=verify-full", 
+		"user=%s dbname=%s sslmode=disable", 
 		user, dbname,
 	)
 	// open db
-	ACTIVE_DB, err := sql.Open("postgres", DSN)
+	// added this because the := operator with un-explicitly declared err was leading to a shadowed ACTIve_db
+	// basically, it would create a local ACTIVE_DB, which dies after the func returns
+	// global ACTIVE_DB would stay unassigned
+	var err error 
+	ACTIVE_DB, err = sql.Open("postgres", DSN)
 	if err != nil{
 		return fmt.Errorf("error opening db: %v", err)
 	}

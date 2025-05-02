@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"jwt-auth/db"
 	"jwt-auth/secret"
 	"jwt-auth/user"
+	"log"
 	"net/http"
 )
 
@@ -18,12 +18,15 @@ func main() {
 	
 	http.HandleFunc("/secret", secret.SecretHandler)
 
-	//listen on port 8080...blocking call
-	err := http.ListenAndServe(":8080", nil)
+	err := db.InitDB("token_master", "jwt_users")
 	if err != nil{
-		fmt.Printf("died starting server: %v",err)
-	}else{
-		db.InitDB("token_master", "jwt_users")
+		log.Fatal("died initilizing the db: ", err)
+	}
+
+	//listen on port 8080...blocking call
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil{
+		log.Fatal("died starting server: ", err)
 	}
 	/*
 	   nil is the multiplexer...which is kinda like a switchboard.
