@@ -4,33 +4,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"time"
 	"io"
-	"jwt-auth/models"
+	"jwt-auth/db"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 
 var legit_request_body_reusable = map[string]string{
 	"username": "joe_smith_TU",
 	"password": "test_pass_123",
-}
-
-func resetDB(){
-	hashed_password, _ := bcrypt.GenerateFromPassword([]byte(legit_request_body_reusable["password"]), bcrypt.DefaultCost)
-
-	default_test_user := models.ServiceUser {
-		User_Name: legit_request_body_reusable["username"],
-		Password: string(hashed_password),
-		Location: "Internet",
-		IP_addr: "127.0.0.1",
-	}
-	fmt.Println(default_test_user)
-	//MasterUserDB[legit_request_body_reusable["username"]] = default_test_user
 }
 
 /*
@@ -55,15 +43,21 @@ func request_response_helper(request_method string, endpoint string, request_bod
 	return *response
 }
 
-/* 
-	Things to test:
-	- testing with empty/incomplete json-body
-	- testing with mumbo-jumbo as json-body
-	- testing with existing username
-	- testing successful register
+/*
+	NOTE:
+	- TestMain is a special function in the testing package. it tests the test harness itself
+	- Notice the (m *testing.M) in the sig...compared to the (t testing.T) in the regular test cases
+	- the M struct is for the Test Manager, and the T struct is individual test context
 */
+func TestMain (m *testing.M){
+	err := db.InitDB("token_master", "jwt_test")
+	if err != nil{
+		log.Fatal("DB init failed: ", err)
+	}
+	os.Exit(m.Run())
+}
+
 func Test_Register_Existing_User(t *testing.T){
-	resetDB()
 
 	response := request_response_helper("POST", "/register",legit_request_body_reusable)
 
@@ -82,10 +76,12 @@ func Test_Register_Existing_User(t *testing.T){
 }
 
 func Test_Register_New_User(t *testing.T){
-	resetDB()
-
+	
+	// since the change to DB, the username, once created, will persist between the tests. 
+	// append some random string, a count of nanaoseconds to the username. unique everytime.
+	username := fmt.Sprintf("billy_bob123_%v", time.Now().UnixNano())
 	new_user := map[string]string{
-		"username": "billy_bob123",
+		"username": username,
 		"password": "qwerty123",
 	}
 	response := request_response_helper("POST", "/register", new_user)
@@ -105,7 +101,6 @@ func Test_Register_New_User(t *testing.T){
 }
 
 func Test_Corrupt_Json_Body(t *testing.T){
-	resetDB()
 
 	junk_body := map[string]string{
 		"user_name": "123449dkc",
@@ -119,7 +114,6 @@ func Test_Corrupt_Json_Body(t *testing.T){
 }
 
 func Test_Empty_Json_Body(t *testing.T){
-	resetDB()
 
 	new_body := map[string]string{
 		"username": "",
@@ -142,11 +136,9 @@ func Test_Empty_Json_Body(t *testing.T){
 
 }
 
-
-//testing successful login
+// testing successful login
 func Test_Login_Success(t *testing.T){
 
-	resetDB()
 	// just use the reuseable body to log-ing
 	response := request_response_helper("POST", "/login", legit_request_body_reusable)
 
@@ -165,7 +157,6 @@ func Test_Login_Success(t *testing.T){
 
 // attempt login with non-existant user
 func Test_user_non_exist(t *testing.T){
-	resetDB()
 
 	new_body := map[string]string{
 		"username" : "bill_maher",
@@ -188,7 +179,7 @@ func Test_user_non_exist(t *testing.T){
 
 // testing incorrect password for existing username
 func Test_incorrect_password(t *testing.T){
-	resetDB()
+
 	legit_request_body_reusable["password"] = "some_junk_pw123"
 
 	response := request_response_helper("POST", "/login", legit_request_body_reusable)

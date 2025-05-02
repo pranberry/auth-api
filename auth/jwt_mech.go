@@ -3,21 +3,13 @@ package auth
 import (
 	"fmt"
 	"time"
-
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// secret key should live in the db...now that we have one
 func SecretKey() []byte{
 	var SecretKey string = "iexaiviazooJeiW0hex_o0O"
 	return []byte(SecretKey)
-}
-
-// I reckon i don't need this, can use the RegisterdClaims struct offered by JWT
-type CustomClaim struct {
-	Issuer		string 	`json:"iss"`
-	Expiry		int64 	`json:"exp"`
-	Issued_at	int64 	`json:"iat"`
-	Username 	string 	`json:"username"`
 }
 
 type JWTResponseStruct struct{
@@ -36,7 +28,6 @@ func CreateJWT(username string) (JWTResponseStruct, error) {
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(900 * time.Second)),
 		})
 	tokenString, err := new_token.SignedString(SecretKey())
-	fmt.Println("RAW JWT: ", tokenString)
 	if err != nil {
 		fmt.Printf("error generating JWT for %v: %v\n", username, err)
 	}
@@ -44,27 +35,10 @@ func CreateJWT(username string) (JWTResponseStruct, error) {
 }
 
 
-/*
-	How to validate:
-	- match signature
-	- not expired yet
-	- check if it was issued by you (iss == scdp)
-	- is meant for username (sub==username)
-
-*/
 func ValidateJWT(JWT string) (bool, error){
-	// read the auth header from the request
-		// --- don't haave to do this with the jwt lib...
-	// split it into its three parts
-		//header.payload.signature
-		// signing_input = header.payload
-	// get signing mech from header
-	// resign signing_input with secret key...
-	// compare new sig with sig from request token
-	// if shes good, then shes good
 
 	claims := &jwt.RegisteredClaims{}
-	keyFunc := func(token *jwt.Token) (interface{}, error) {
+	keyFunc := func(token *jwt.Token) (any, error) {
 		return SecretKey(), nil
 	}
 	

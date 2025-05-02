@@ -33,6 +33,9 @@ COMMIT;
 -- lets get a different user than postgres to own everything. something more specific to the proj
 begin;
 CREATE ROLE token_master with login;
+commit;
+
+begin;
 alter database jwt_users owner to token_master;
 alter table users owner to token_master;
 alter table tokens owner to token_master;
@@ -43,7 +46,7 @@ commit;
 -- had to recreate, but then i also have to reapply ownerships
 -- so creatign a schema, adding tables to that schema and letting token_master own schema
 begin;
-create schema jwt_auth;
+create schema if not exists jwt_auth;
 alter schema jwt_auth owner to token_master;
 ALTER ROLE token_master SET search_path TO jwt_auth;
 alter table users set schema jwt_auth;
@@ -51,6 +54,7 @@ alter table tokens set schema jwt_auth;
 alter table secrets set schema jwt_auth;
 
 ALTER ROLE token_master SET search_path TO jwt_auth;
-
+commit;
+begin;
 alter table users add constraint unique_username unique (username);
 commit;

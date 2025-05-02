@@ -24,10 +24,8 @@ func RegisterHandler(writer http.ResponseWriter, request *http.Request){
         return
     }
 
-    // check if user_name exists
-    // the two-val assignment provides: val if key exists, bool that key exists
-    //_, user_exist := MasterUserDB[user.User_Name]
-    service_user, err := db.GetUserByName(user.User_Name)
+    // check if username exists in database
+    service_user, _ := db.GetUserByName(user.User_Name)
 
     if service_user != nil {// service user should be nil for an non-existiant user 
         http.Error(writer, "username taken. pick another", http.StatusBadRequest)

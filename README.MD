@@ -6,9 +6,20 @@ Endpoints:
     - login and retrieve a JWT
 - /secret
     - validates a legit JWT and sends the client some guarded data
-
 This project is to learn GO-lang.
+=========================================================================================
 
+ToDo: 
+- add tests for jwt creating and validating
+- fix failing tests [✅]
+- improve token validation
+- Add a postgres database [✅]
+    - this, in general, could be the backend for all JWT Rest projects (any lang) [✅]
+- Instead of a simple secret key for signing, impliment public-private infra
+- rename "auth" folder to token
+- store secret key in db, and get it from db
+
+=========================================================================================
 So what did I learn?
 - Go is a pretty fun language!
 - Opinionated, but not overbearing
@@ -51,6 +62,7 @@ So what did I learn?
             - Foo(slc...)
     - neato!
 - that native error type is hella cool
+- remembering to include github package names, and remembering to include them can be difficult
 
 - This is actually a great little project for learning a lang.
     - hiting a lot of core functionality of a lang here
@@ -68,18 +80,8 @@ What more to checkout with GO-lang:
     - type switches
 - what is a runtime panic? when do they pop up?
 
-ToDo: 
-- add tests for jwt creating and validating
-- fix failing tests
-- improve token validation
-- Add a postgres database
-    - this, in general, could be the backend for all JWT Rest projects (any lang)
-- Instead of a simple secret key for signing, impliment public-private infra
-- rename "auth" folder to token
-
-
-
-Best Practices: what i learned as i went along:
+Best Practices: what i learned as i went along
+(May 01, 2025)
 - structs over maps (always)
 - defer stmt.Close() when preparing statement
     - very interesting. when you defer it closes the statement when the func ends
@@ -90,3 +92,7 @@ Best Practices: what i learned as i went along:
 - Best practice for returns is (T, err). not (T, bool)
     - (T, err) is much more specific
     - (T, bool) is okay for in-mem lookups (checking if val exists in map)
+- doing the cutover to the db was fairly straight forward...painless even
+- retro fitting the tests was really fukin easy. took out a lot of bloat too
+    - just needed to add a test harness
+- apparently instead of returning a generic 'interface{}', you can return an 'any' type...as of go1.18

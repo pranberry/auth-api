@@ -45,22 +45,6 @@ func GetDB() *sql.DB {
 	return ACTIVE_DB
 }
 
-
-/*
-	WHATS NEXT?
-	- query/select db for an existing user. register and login both need to do this
-		- the data the gets returned, need to get marshalled into JSON
-		- the data has to fit the existing structure of MasterUserDB ( map[string]ServiceUser )
-		- basically a swap-in
-		- what would be a good time to load the database into masteruserdb for the first time?
-			- this seems like an important question!
-			- or should it even be done? just load one item per query. no need to hold it all in mem, dumbo!
-	- create new/insert user function
-	- create new/insert jwt function
-	- also, modify tests user/jwt to do testing with db
-
-*/
-
 /*
 	- get the user record from the user's table
 */

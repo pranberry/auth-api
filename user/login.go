@@ -2,7 +2,6 @@ package user
 
 import (
 	"encoding/json"
-	"fmt"
 	"jwt-auth/auth"
 	"jwt-auth/db"
 	"jwt-auth/models"
@@ -42,7 +41,6 @@ func LoginHandler(writer http.ResponseWriter, request *http.Request) {
             return
         }
         jwt_resp.Message = "Login Successful"
-        fmt.Println("JWT before writing headers: ",jwt_resp.AccessToken)
         writer.Header().Set("Content-Type","application/json")
         writer.WriteHeader(http.StatusOK)
         json.NewEncoder(writer).Encode(jwt_resp)
