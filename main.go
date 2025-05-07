@@ -24,10 +24,12 @@ func main() {
 	}
 
 	//listen on port 8080...blocking call
-	err = http.ListenAndServe(":8080", nil)
-	if err != nil{
-		log.Fatal("died starting server: ", err)
-	}
+	go http.ListenAndServe(":8080", nil)
+	
+	go http.ListenAndServe(":8081", nil)
+	select{}
+//	fmt.Println("8080 started!")
+
 	/*
 	   nil is the multiplexer...which is kinda like a switchboard.
 	   a multiplexer, sees the path, and call the specifiec handler function

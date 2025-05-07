@@ -18,6 +18,12 @@ ToDo:
 - Instead of a simple secret key for signing, impliment public-private infra
 - rename "auth" folder to token
 - store secret key in db, and get it from db
+- How can i test the concurrency features of go? is there a way to make 1000x of requests?
+    - lets add performance testing after the python version...so we can compare
+- how can i run the same API on two different port? 
+- I notice that i don't use go routines anywhere explicity...
+    - next step should be really getting into the deep concurrency with go
+        - go-routines, waitgroups, channels, worker pools, etc
 
 =========================================================================================
 So what did I learn?
