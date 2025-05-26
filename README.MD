@@ -6,8 +6,8 @@ Endpoints:
     - login and retrieve a JWT
 - /secret
     - validates a legit JWT and sends the client some guarded data
-This project is to learn GO-lang.
-=========================================================================================
+
+-----------------------------------------------------------------------------
 
 ToDo: 
 - add tests for jwt creating and validating
@@ -28,7 +28,8 @@ ToDo:
     - ran into an issue where, the python app populates the db and leaves the IP column null
     - so the go-lang app tries to convert Null to string and dies (while calling register on a new user, which already exists)
 
-=========================================================================================
+-----------------------------------------------------------------------------
+
 So what did I learn?
 - Go is a pretty fun language!
 - Opinionated, but not overbearing
