@@ -71,15 +71,14 @@ Endpoints:
     - neato!
 - that native error type is hella cool
 - remembering to include github package names, and remembering to include them can be difficult
-
----
-
 - This is actually a great little project for learning a lang.
     - hiting a lot of core functionality of a lang here
     - learned a LOT
     - need to look indepth into the underlying philosophy of Go
         - how is it different from java and python?
         - what problem were its creators trying to solve?
+
+---
 
 ### What more to checkout with GO-lang:
 - type assertions
