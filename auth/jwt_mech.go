@@ -2,15 +2,11 @@ package auth
 
 import (
 	"fmt"
+	"jwt-auth/db"
 	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 )
-
-// secret key should live in the db...now that we have one
-func SecretKey() []byte{
-	var SecretKey string = "iexaiviazooJeiW0hex_o0O"
-	return []byte(SecretKey)
-}
 
 type JWTResponseStruct struct{
 	AccessToken string `json:"access_token"`
@@ -27,7 +23,11 @@ func CreateJWT(username string) (JWTResponseStruct, error) {
 			IssuedAt: jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(900 * time.Second)),
 		})
-	tokenString, err := new_token.SignedString(SecretKey())
+	secretKey,err := db.GetSecretKey()
+	if err != nil{
+		return JWTResponseStruct{}, err
+	}
+	tokenString, err := new_token.SignedString(secretKey)
 	if err != nil {
 		fmt.Printf("error generating JWT for %v: %v\n", username, err)
 	}
@@ -38,8 +38,12 @@ func CreateJWT(username string) (JWTResponseStruct, error) {
 func ValidateJWT(JWT string) (bool, error){
 
 	claims := &jwt.RegisteredClaims{}
+	secretKey, err := db.GetSecretKey()
+	if err != nil{
+		return false, err
+	}
 	keyFunc := func(token *jwt.Token) (any, error) {
-		return SecretKey(), nil
+		return secretKey, nil
 	}
 	
 	token, err := jwt.ParseWithClaims(JWT, claims, keyFunc)

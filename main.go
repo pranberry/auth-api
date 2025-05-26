@@ -25,10 +25,8 @@ func main() {
 
 	//listen on port 8080...blocking call
 	go http.ListenAndServe(":8080", nil)
-	
 	go http.ListenAndServe(":8081", nil)
 	select{}
-//	fmt.Println("8080 started!")
 
 	/*
 	   nil is the multiplexer...which is kinda like a switchboard.
@@ -38,15 +36,6 @@ func main() {
 	*/ 
 }
 
-
 func health_handler(writer http.ResponseWriter, request *http.Request) {
 	writer.Write([]byte("<h1>ALIVE AND WELL...ish</h1>"))
 }
-
-
-/*
-    TO-DO
-    - change all error messages to send back JSON, not plaintext
-    - eventually, add https to the mix, so we're getting encrypted data
-*/
-

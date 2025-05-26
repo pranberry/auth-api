@@ -2,6 +2,7 @@ package user
 
 import (
 	"encoding/json"
+	"fmt"
 	"jwt-auth/auth"
 	"jwt-auth/db"
 	"jwt-auth/models"
@@ -37,7 +38,8 @@ func LoginHandler(writer http.ResponseWriter, request *http.Request) {
     } else {
         jwt_resp, err := auth.CreateJWT(user_data.User_Name)
         if err != nil {
-            http.Error(writer, "Error Creating JWT", http.StatusInternalServerError)
+            err := fmt.Sprintf("error creating jwt: %v", err)
+            http.Error(writer, err, http.StatusInternalServerError)
             return
         }
         jwt_resp.Message = "Login Successful"

@@ -3,6 +3,24 @@
 -- from the cmdline do:
 -- sudo psql -U postgres -d jwt_users -f <this_files_name>
 
+-- the login after setup is easy for mac, but gotta jump through some hoops for linux. 
+-- you can either:
+-- -- mess around with some pg_hba.conf files
+-- -- or create a system user with names token_master
+-- -- -- sudo adduser token_master
+-- -- -- then log in as: sudo -u token_master psql -d jwt_users
+-- better than the alternative of:
+-- sudo -u postgres psql
+-- \c jwt_users;
+-- set role token_master;
+-- set search_path to jwt_auth;
+
+-- IF YOU NEED TO DROP EVERYTHING:
+-- Drop database jwt_users;
+-- drop role token_master;
+
+-- Tables are in a schema. Schema is in a database. Roles are system level
+
 BEGIN;
 CREATE TABLE IF NOT EXISTS users (
     id serial PRIMARY KEY,
@@ -55,8 +73,3 @@ commit;
 begin;
 alter table jwt_auth.users add constraint unique_username unique (username);
 commit;
-
-
--- IF YOU NEED TO DROP EVERYTHING:
--- Drop database jwt_users;
--- drop role token_master;

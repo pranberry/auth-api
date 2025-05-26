@@ -68,9 +68,9 @@ func GetUserByName(username string) (*models.ServiceUser, error) {
 
 	if err != nil{
 		return nil, fmt.Errorf("no user found: %v", err)
-	}else{
-		return &user_data, nil
 	}
+	return &user_data, nil
+	
 
 }
 
@@ -87,4 +87,22 @@ func RegisterUser(newUser models.ServiceUser) error {
 		return fmt.Errorf("failed to save user to db: %v", err)
 	}
 	return nil
+}
+
+func GetSecretKey() ([]byte, error) {
+	db := GetDB()
+	stmt, err := db.Prepare("SELECT SECRET_KEY FROM secrets where project_name = 'go-jwt-auth'")
+	if err != nil{
+		return nil, fmt.Errorf("failed to prepare statement: %v", err)
+	}
+	defer stmt.Close()
+
+	var secretKey string
+	err = stmt.QueryRow().Scan(&secretKey)
+
+	if err != nil{
+		return nil, fmt.Errorf("secret key not found: %v", err)
+	}
+
+	return []byte(secretKey), nil
 }

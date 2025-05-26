@@ -17,13 +17,16 @@ ToDo:
     - this, in general, could be the backend for all JWT Rest projects (any lang) [✅]
 - Instead of a simple secret key for signing, impliment public-private infra
 - rename "auth" folder to token
-- store secret key in db, and get it from db
+- store secret key in db, and get it from db [✅]
 - How can i test the concurrency features of go? is there a way to make 1000x of requests?
     - lets add performance testing after the python version...so we can compare
 - how can i run the same API on two different port? 
 - I notice that i don't use go routines anywhere explicity...
     - next step should be really getting into the deep concurrency with go
         - go-routines, waitgroups, channels, worker pools, etc
+- Since we're writing to the db from two different apps, the data could be poorly formated.
+    - ran into an issue where, the python app populates the db and leaves the IP column null
+    - so the go-lang app tries to convert Null to string and dies (while calling register on a new user, which already exists)
 
 =========================================================================================
 So what did I learn?
