@@ -1,15 +1,12 @@
-Creates and returns a JWT and allows a user to access protected endpoints with a valid JWT
+### Creates and returns a JWT and allows a user to access protected endpoints with a valid JWT
 Endpoints:
-- /register
-    - register a user
-- /login
-    - login and retrieve a JWT
-- /secret
-    - validates a legit JWT and sends the client some guarded data
+- /register: register a user
+- /login: login and retrieve a JWT
+- /secret: validates a legit JWT and sends the client some guarded data
 
------------------------------------------------------------------------------
+---
 
-ToDo: 
+### ToDo: 
 - add tests for jwt creating and validating
 - fix failing tests [✅]
 - improve token validation
@@ -28,9 +25,10 @@ ToDo:
     - ran into an issue where, the python app populates the db and leaves the IP column null
     - so the go-lang app tries to convert Null to string and dies (while calling register on a new user, which already exists)
 
------------------------------------------------------------------------------
+---
 
-So what did I learn?
+### So what did I learn?
+
 - Go is a pretty fun language!
 - Opinionated, but not overbearing
 - VSCode integrations is resonable
@@ -74,6 +72,8 @@ So what did I learn?
 - that native error type is hella cool
 - remembering to include github package names, and remembering to include them can be difficult
 
+---
+
 - This is actually a great little project for learning a lang.
     - hiting a lot of core functionality of a lang here
     - learned a LOT
@@ -81,17 +81,19 @@ So what did I learn?
         - how is it different from java and python?
         - what problem were its creators trying to solve?
 
-What more to checkout with GO-lang:
+### What more to checkout with GO-lang:
 - type assertions
 - No interhitance, but we've got interfaces...
-    - composition vs inheritance?
+    - composition vs inheritance
     - generic interface{}
     - type assert on an interface
     - type switches
 - what is a runtime panic? when do they pop up?
 
-Best Practices: what i learned as i went along
-(May 01, 2025)
+--- 
+
+### More Learnings:
+
 - structs over maps (always)
 - defer stmt.Close() when preparing statement
     - very interesting. when you defer it closes the statement when the func ends
