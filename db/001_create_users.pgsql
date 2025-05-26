@@ -50,11 +50,10 @@ ALTER ROLE token_master SET search_path TO jwt_auth;
 alter table users set schema jwt_auth;
 alter table tokens set schema jwt_auth;
 alter table secrets set schema jwt_auth;
-
-ALTER ROLE token_master SET search_path TO jwt_auth;
 commit;
+
 begin;
-alter table users add constraint unique_username unique (username);
+alter table jwt_auth.users add constraint unique_username unique (username);
 commit;
 
 
