@@ -1,10 +1,7 @@
--- DB name is jwt_users
--- create users table
--- and
--- create jwt table fk to user table
--- and
--- secrets table
-
+-- Create a database names jwt_users;
+-- CREATE DATABASE jwt_users;
+-- from the cmdline do:
+-- sudo psql -U postgres -d jwt_users -f <this_files_name>
 
 BEGIN;
 CREATE TABLE IF NOT EXISTS users (
@@ -59,3 +56,8 @@ commit;
 begin;
 alter table users add constraint unique_username unique (username);
 commit;
+
+
+-- IF YOU NEED TO DROP EVERYTHING:
+-- Drop database jwt_users;
+-- drop role token_master;
