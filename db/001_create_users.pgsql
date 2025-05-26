@@ -6,7 +6,11 @@
 -- secrets table
 
 BEGIN;
-CREATE TABLE IF NOT EXISTS users (
+CREATE DATABASE jwt_users;
+COMMIT;
+
+BEGIN;
+CREATE TABLE IF NOT EXISTS jwt_users.users (
     id serial PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
@@ -15,14 +19,14 @@ CREATE TABLE IF NOT EXISTS users (
     created_at timestamp not null default now()
 );
 
-CREATE TABLE IF NOT EXISTS tokens (
+CREATE TABLE IF NOT EXISTS jwt_users.tokens (
     user_id integer references users(id) on delete cascade,
     jwt_token TEXT NOT NULL,
     created_at timestamp,
     expires_at timestamp
 );
 
-Create table IF NOT EXISTS secrets (
+Create table IF NOT EXISTS jwt_users.secrets (
     project_name TEXT primary Key,
     secret_key TEXT NOT NULL,
     created_at timestamp not null default now(),
@@ -37,9 +41,9 @@ commit;
 
 begin;
 alter database jwt_users owner to token_master;
-alter table users owner to token_master;
-alter table tokens owner to token_master;
-alter table secrets owner to token_master;
+alter table jwt_users.users owner to token_master;
+alter table jwt_users.tokens owner to token_master;
+alter table jwt_users.secrets owner to token_master;
 commit;
 
 -- changed the users and tokens table, so had to drop them
@@ -49,12 +53,12 @@ begin;
 create schema if not exists jwt_auth;
 alter schema jwt_auth owner to token_master;
 ALTER ROLE token_master SET search_path TO jwt_auth;
-alter table users set schema jwt_auth;
-alter table tokens set schema jwt_auth;
-alter table secrets set schema jwt_auth;
+alter table jwt_users.users set schema jwt_auth;
+alter table jwt_users.tokens set schema jwt_auth;
+alter table jwt_users.secrets set schema jwt_auth;
 
 ALTER ROLE token_master SET search_path TO jwt_auth;
 commit;
 begin;
-alter table users add constraint unique_username unique (username);
+alter table jwt_users.users add constraint unique_username unique (username);
 commit;
