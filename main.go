@@ -1,6 +1,7 @@
 package main
 
 import (
+	"jwt-auth/config"
 	"jwt-auth/db"
 	"jwt-auth/secret"
 	"jwt-auth/user"
@@ -15,25 +16,26 @@ func main() {
 
 	http.HandleFunc("/login", user.LoginHandler)
 	http.HandleFunc("/register", user.RegisterHandler)
-	
+
 	http.HandleFunc("/secret", secret.SecretHandler)
 
-	err := db.InitDB("token_master", "jwt_users")
-	if err != nil{
+	//err := db.InitDB("token_master", "jwt_users", "tokenPass", "auth-db")		// host name comes from docker-compose.yml
+	err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
+	if err != nil {
 		log.Fatal("died initilizing the db: ", err)
 	}
 
 	//listen on port 8080...blocking call
 	go http.ListenAndServe(":8080", nil)
 	go http.ListenAndServe(":8081", nil)
-	select{}
+	select {}
 
 	/*
 	   nil is the multiplexer...which is kinda like a switchboard.
 	   a multiplexer, sees the path, and call the specifiec handler function
 	   calling handleFunc add a rule to the multiplexer.
 	   there is a default multiplexer, and you can write a custom multiplexer
-	*/ 
+	*/
 }
 
 func health_handler(writer http.ResponseWriter, request *http.Request) {

@@ -14,8 +14,8 @@ func SecretHandler(writer http.ResponseWriter, request *http.Request) {
 
 	// get the jwt from the auth header
 	auth_header := request.Header.Get("Authorization")
-	auth_header, found := strings.CutPrefix(auth_header,"Bearer ")
-	if !found{
+	auth_header, found := strings.CutPrefix(auth_header, "Bearer ")
+	if !found {
 		http.Error(writer, "Corrupt Token Format", http.StatusUnauthorized)
 		return
 	}
@@ -31,5 +31,5 @@ func SecretHandler(writer http.ResponseWriter, request *http.Request) {
 		http.ServeFile(writer, request, "secret/hamster_dance.gif")
 		return
 	}
-	
+
 }
