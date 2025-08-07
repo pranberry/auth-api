@@ -2,8 +2,6 @@ package user
 
 import (
 	"encoding/json"
-	"fmt"
-	"jwt-auth/auth"
 	"jwt-auth/db"
 	"jwt-auth/models"
 	"net/http"
@@ -11,43 +9,53 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-	 handler function
-		a http.Request gets intput from the client request...
-	    a http.ResponseWriter writes back to the client...headers, body, codes...
-*/
+// Handle Logic for Login attempt. Returns a JWT on successful login
 func LoginHandler(writer http.ResponseWriter, request *http.Request) {
+
 	var login_user_data models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&login_user_data)
 	if err != nil {
-		http.Error(writer, "Request Denied", http.StatusBadRequest)
+		SendReponse(models.ResponseStruct{
+			Message: "flawed request",
+		},
+			http.StatusBadRequest,
+			writer,
+		)
 		return
 	}
-	// check for user existance in db/mem
-	user_data, err := db.GetUserByName(login_user_data.User_Name)
 
+	// check for user existance in db
+	user_data, err := db.GetUserByName(login_user_data.User_Name)
 	if err != nil {
-		http.Error(writer, "username not found. register first", http.StatusBadRequest)
+		SendReponse(models.ResponseStruct{
+			Message: "username not found. register first",
+		},
+			http.StatusBadRequest,
+			writer)
 		return
 	}
 
 	// if user exists, validate password
 	err = bcrypt.CompareHashAndPassword([]byte(user_data.Password), []byte(login_user_data.Password))
 	if err != nil {
-		http.Error(writer, "Password is incorrect", http.StatusBadRequest)
+		SendReponse(models.ResponseStruct{
+			Message: "incorrect password",
+		},
+			http.StatusBadRequest,
+			writer)
 		return
 	} else {
-		jwt_resp, err := auth.CreateJWT(user_data.User_Name)
+		jwt_resp, err := CreateJWT(user_data.User_Name)
 		if err != nil {
-			err := fmt.Sprintf("error creating jwt: %v", err)
-			http.Error(writer, err, http.StatusInternalServerError)
+			SendReponse(models.ResponseStruct{
+				Message: "error createing JWT: " + err.Error(),
+			},
+				http.StatusInternalServerError,
+				writer)
 			return
 		}
-		jwt_resp.Message = "Login Successful"
-		writer.Header().Set("Content-Type", "application/json")
-		writer.WriteHeader(http.StatusOK)
-		json.NewEncoder(writer).Encode(jwt_resp)
+		jwt_resp.Message = "login successful"
+		SendReponse(jwt_resp, http.StatusOK, writer)
 		return
-
 	}
 }

@@ -10,9 +10,10 @@ import (
 )
 
 /*
-- the *http.Request is, you guessed it, a pointer to the http.request object
+Handler function for registering a user
 */
 func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
+
 	var user models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&user)
 	if err != nil {
@@ -25,20 +26,33 @@ func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 
 	// check if username exists in database
-	service_user, _ := db.GetUserByName(user.User_Name)
-
-	if service_user != nil { // service user should be nil for an non-existiant user
-		http.Error(writer, "username taken. pick another", http.StatusBadRequest)
+	userExists, err := db.CheckUserExists(user.User_Name)
+	if err != nil {
+		http.Error(writer, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// If the users exists, return error
+	if userExists {
+		SendReponse(models.ResponseStruct{
+			Message: "username taken. pick another",
+		},
+			http.StatusBadRequest,
+			writer)
+
+		return
+	}
+
+	// hash the password from the request
 	hashed_pass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		http.Error(writer, "error hashing password", http.StatusInternalServerError)
+		SendReponse(models.ResponseStruct{Message: "error hashing password"}, http.StatusInternalServerError, writer)
 		return
 	}
-
+	// Replace string password with bycrypt hash
 	user.Password = string(hashed_pass)
+
+	// Get IP and location value...this is largely useless
 	ip, _, err := net.SplitHostPort(request.RemoteAddr)
 	if err != nil {
 		ip = request.RemoteAddr
@@ -46,16 +60,32 @@ func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
 	user.IP_addr = ip
 	user.Location = "Internet"
 
+	// Register the user
 	err = db.RegisterUser(user)
 	if err != nil {
-		http.Error(writer, "Failed to register user", http.StatusInternalServerError)
+		SendReponse(
+			models.ResponseStruct{
+				Message: "failed to register user: " + err.Error(),
+			},
+			http.StatusInternalServerError,
+			writer,
+		)
 		return
 	} else {
-		resp := models.ResponseStruct{}
-		resp.Message = "user created successfully"
-		resp.Username = user.User_Name
-		writer.Header().Set("Content-Type", "application/json")
-		writer.WriteHeader(http.StatusCreated)
-		json.NewEncoder(writer).Encode(resp)
+		resp := models.ResponseStruct{
+			Message: "user created successfully",
+			Username: user.User_Name,
+		}
+		SendReponse(resp, http.StatusCreated, writer)
+		return
 	}
+}
+
+// Helper to format the response sent back to the user
+func SendReponse(resp models.ResponseStruct, httpRespCode int, writer http.ResponseWriter) {
+
+	writer.Header().Set("Content-Type", "application/json")
+	writer.WriteHeader(httpRespCode)
+	json.NewEncoder(writer).Encode(resp)
+
 }

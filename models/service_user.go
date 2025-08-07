@@ -1,21 +1,19 @@
 package models
 
 /*
-	- moved the service model here because it avoids circular dependencies which came up when it was in user.go
-	- the struct is used by multiple packages (db, user, etc). so better to move it out in a central place
-	- models is place for shared models only, not a junk drawer!
+	File contains shared models
 */
 
 type ServiceUser struct {
-	// in GO, field names should start with capital letters to be unmarshaled (decoded from JSON)
 	User_Name string `json:"username"`
-	// the bits in the back-tics are "struct-tags", this tells json.decode() what to look for
-	Password string `json:"password"`
-	Location string
-	IP_addr  string
+	Password  string `json:"password"`
+	Location  string
+	IP_addr   string
 }
 
 type ResponseStruct struct {
-	Message  string `json:"message"`
+	Message  string `json:"message,omitempty"`
 	Username string `json:"username,omitempty"`
+	AccessToken string `json:"access_token,omitempty"`
+	TokenType   string `json:"token_type,omitempty"`
 }

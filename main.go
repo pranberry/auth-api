@@ -7,35 +7,32 @@ import (
 	"jwt-auth/user"
 	"log"
 	"net/http"
+	"sync"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
-	// HandleFunc is from the http lib
-	// associates a URL path with a function
-	http.HandleFunc("/health", health_handler)
 
-	http.HandleFunc("/login", user.LoginHandler)
-	http.HandleFunc("/register", user.RegisterHandler)
+	mux := mux.NewRouter()
+	
+	mux.HandleFunc("/health", health_handler).Methods("GET")
+	mux.HandleFunc("/login", user.LoginHandler).Methods("POST")
+	mux.HandleFunc("/register", user.RegisterHandler).Methods("POST")
+	mux.HandleFunc("/secret", secret.SecretHandler).Methods("GET")
 
-	http.HandleFunc("/secret", secret.SecretHandler)
-
-	//err := db.InitDB("token_master", "jwt_users", "tokenPass", "auth-db")		// host name comes from docker-compose.yml
+	// Initialize the DB
 	err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
 	if err != nil {
-		log.Fatal("died initilizing the db: ", err)
+		log.Fatal(err)
 	}
 
-	//listen on port 8080...blocking call
-	go http.ListenAndServe(":8080", nil)
-	go http.ListenAndServe(":8081", nil)
-	select {}
-
-	/*
-	   nil is the multiplexer...which is kinda like a switchboard.
-	   a multiplexer, sees the path, and call the specifiec handler function
-	   calling handleFunc add a rule to the multiplexer.
-	   there is a default multiplexer, and you can write a custom multiplexer
-	*/
+	var wg sync.WaitGroup
+	// Starting listening on 8080
+	wg.Add(1)
+	go http.ListenAndServe(":9000", mux)
+	
+	wg.Wait()
 }
 
 func health_handler(writer http.ResponseWriter, request *http.Request) {

@@ -2,14 +2,12 @@ package secret
 
 import (
 	"fmt"
-	"jwt-auth/auth"
+	"jwt-auth/user"
 	"net/http"
 	"strings"
 )
 
-// make a call to check the JWT token.
-// then produce the "secret"
-// which is an image of the hamster dance
+// Validates the JWT token and allows access to "secret" endpoint
 func SecretHandler(writer http.ResponseWriter, request *http.Request) {
 
 	// get the jwt from the auth header
@@ -19,11 +17,12 @@ func SecretHandler(writer http.ResponseWriter, request *http.Request) {
 		http.Error(writer, "Corrupt Token Format", http.StatusUnauthorized)
 		return
 	}
-	is_valid_token, err := auth.ValidateJWT(auth_header)
+	is_valid_token, err := user.ValidateJWT(auth_header)
 	if err != nil {
 		http.Error(writer, fmt.Sprintf("Error validating token: %v", err), http.StatusUnauthorized)
 		return
 	}
+	
 	// don't really need this if block
 	if is_valid_token {
 		writer.Header().Set("Content-Type", "image/gif")
