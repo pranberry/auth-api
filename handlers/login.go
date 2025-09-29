@@ -11,7 +11,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-
 func LoginHandler(writer http.ResponseWriter, request *http.Request) {
 	var login_user_data models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&login_user_data)

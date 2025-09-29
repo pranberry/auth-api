@@ -3,37 +3,37 @@ package main
 import (
 	"jwt-auth/config"
 	"jwt-auth/db"
-	"jwt-auth/handlers"
+	api "jwt-auth/handlers"
+	mw "jwt-auth/middleware"
 	"log"
 	"net/http"
 )
 
 func main() {
 
-	http.HandleFunc("/health", health_handler)
+	http.HandleFunc("/health", mw.Logger(health_handler))
 
-	http.HandleFunc("/login", handlers.LoginHandler)
-	http.HandleFunc("/register", handlers.RegisterHandler)
+	http.HandleFunc("/login", mw.Logger(mw.CheckJwt(api.LoginHandler)))
+	http.HandleFunc("/register", mw.Logger(api.RegisterHandler))
 
-	http.HandleFunc("/secret", handlers.SecretHandler)
+	http.HandleFunc("/secret", mw.Logger(mw.CheckJwt(api.SecretHandler)))
 
 	//err := db.InitDB("token_master", "jwt_users", "tokenPass", "auth-db")		// host name comes from docker-compose.yml
 	err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
 	if err != nil {
-		log.Fatal("died initilizing the db: ", err)
+		log.Printf("failed initilizing the db: %v", err)
 	}
 
-	go http.ListenAndServe(":8976", nil)
-	select {}
+	http.ListenAndServe(":8976", nil)
 
 	/*
-	   nil is the multiplexer...which is kinda like a switchboard.
-	   a multiplexer, sees the path, and call the specifiec handler function
+	   nil is the multiplexer...which is kinda like a switchboard..
+	   a multiplexer, sees the path, and call the specific handler function
 	   calling handleFunc add a rule to the multiplexer.
 	   there is a default multiplexer, and you can write a custom multiplexer
 	*/
 }
 
 func health_handler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("<h1>ALIVE AND WELL...ish</h1>"))
+	writer.Write([]byte("<h1>ALIVE AND WELL...ish</h1>\n"))
 }

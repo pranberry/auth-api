@@ -45,7 +45,7 @@ func GetDB() *sql.DB {
 }
 
 /*
-- get the user record from the user's table
+	- get the user record from the user's table
 */
 func GetUserByName(username string) (*models.ServiceUser, error) {
 

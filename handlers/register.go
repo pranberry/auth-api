@@ -10,16 +10,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// Register new users
 func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
+
 	var user models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&user)
 	if err != nil {
 		http.Error(writer, "invalid json", http.StatusBadRequest)
-		return
 	}
 	if user.User_Name == "" || user.Password == "" {
 		http.Error(writer, "username and password required", http.StatusBadRequest)
-		return
 	}
 
 	// check if username exists in database

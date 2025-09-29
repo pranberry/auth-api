@@ -12,6 +12,7 @@ type JWTResponseStruct struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
 	Message     string `json:"message,omitempty"`
+	HttpStatus	int
 }
 
 func CreateJWT(username string) (JWTResponseStruct, error) {
@@ -34,12 +35,12 @@ func CreateJWT(username string) (JWTResponseStruct, error) {
 	return JWTResponseStruct{AccessToken: tokenString, TokenType: "bearer"}, err
 }
 
-func ValidateJWT(JWT string) (bool, error) {
+func ValidateJWT(JWT string) error {
 
 	claims := &jwt.RegisteredClaims{}
 	secretKey, err := db.GetSecretKey()
 	if err != nil {
-		return false, err
+		return err
 	}
 	keyFunc := func(token *jwt.Token) (any, error) {
 		return secretKey, nil
@@ -48,13 +49,13 @@ func ValidateJWT(JWT string) (bool, error) {
 	token, err := jwt.ParseWithClaims(JWT, claims, keyFunc)
 	if err != nil {
 		fmt.Printf("error: failed to parse token string: %v", err)
-		return false, err
+		return err
 	}
 
 	if token.Valid {
 		// TODO: if token is valid, bump the expiry
-		return true, nil
+		return nil
 	} else {
-		return false, fmt.Errorf("token is invalid")
+		return fmt.Errorf("token is invalid")
 	}
 }

@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-var legit_request_body_reusable = map[string]string{
+var legitRequestBodyReusable = map[string]string{
 	"username": "joe_smith_TU",
 	"password": "test_pass_123",
 }
@@ -23,14 +23,16 @@ var legit_request_body_reusable = map[string]string{
 /*
 based on inputs, creates a http request and returns a http response object
 found myself writing the same code over and over agian...
+format:
+	requestResponseHelper("POST", "/register", legitRequestBodyReusable)
 */
-func request_response_helper(request_method string, endpoint string, request_body map[string]string) http.Response {
+func requestResponseHelper(rMethod string, url string, request_body map[string]string) http.Response {
 
 	json_body, _ := json.Marshal(request_body)
-	request := httptest.NewRequest(request_method, endpoint, bytes.NewReader(json_body))
+	request := httptest.NewRequest(rMethod, url, bytes.NewReader(json_body))
 	writer := httptest.NewRecorder()
 
-	switch endpoint {
+	switch url {
 	case "/register":
 		RegisterHandler(writer, request)
 	case "/login":
@@ -56,9 +58,10 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+
 func Test_Register_Existing_User(t *testing.T) {
 
-	response := request_response_helper("POST", "/register", legit_request_body_reusable)
+	response := requestResponseHelper("POST", "/register", legitRequestBodyReusable)
 
 	if response.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected status 400, got: %v", response.StatusCode)
@@ -83,7 +86,7 @@ func Test_Register_New_User(t *testing.T) {
 		"username": username,
 		"password": "qwerty123",
 	}
-	response := request_response_helper("POST", "/register", new_user)
+	response := requestResponseHelper("POST", "/register", new_user)
 
 	if response.StatusCode != http.StatusCreated {
 		t.Errorf("Expected status 201, recieved: %d", response.StatusCode)
@@ -105,7 +108,7 @@ func Test_Corrupt_Json_Body(t *testing.T) {
 		"user_name": "123449dkc",
 		"pass_word": "fugazi",
 	}
-	response := request_response_helper("POST", "/register", junk_body)
+	response := requestResponseHelper("POST", "/register", junk_body)
 
 	if response.StatusCode != http.StatusBadRequest {
 		t.Errorf("Wrong status recieved for poorly formatted request. Expected 400. Recieved %d", response.StatusCode)
@@ -119,7 +122,7 @@ func Test_Empty_Json_Body(t *testing.T) {
 		"password": "",
 	}
 
-	response := request_response_helper("POST", "/register", new_body)
+	response := requestResponseHelper("POST", "/register", new_body)
 
 	if response.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected error code 400, recieved: %d", response.StatusCode)
@@ -139,7 +142,7 @@ func Test_Empty_Json_Body(t *testing.T) {
 func Test_Login_Success(t *testing.T) {
 
 	// just use the reuseable body to log-ing
-	response := request_response_helper("POST", "/login", legit_request_body_reusable)
+	response := requestResponseHelper("POST", "/login", legitRequestBodyReusable)
 
 	if response.StatusCode != http.StatusOK {
 		t.Errorf("Expected code 200, recieved: %d", response.StatusCode)
@@ -162,7 +165,7 @@ func Test_user_non_exist(t *testing.T) {
 		"password": "password123",
 	}
 
-	response := request_response_helper("POST", "/login", new_body)
+	response := requestResponseHelper("POST", "/login", new_body)
 
 	if response.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected code 400, recieved: %d", response.StatusCode)
@@ -179,9 +182,9 @@ func Test_user_non_exist(t *testing.T) {
 // testing incorrect password for existing username
 func Test_incorrect_password(t *testing.T) {
 
-	legit_request_body_reusable["password"] = "some_junk_pw123"
+	legitRequestBodyReusable["password"] = "some_junk_pw123"
 
-	response := request_response_helper("POST", "/login", legit_request_body_reusable)
+	response := requestResponseHelper("POST", "/login", legitRequestBodyReusable)
 
 	if response.StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected code 400, recieved: %d", response.StatusCode)

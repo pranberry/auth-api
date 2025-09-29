@@ -7,9 +7,9 @@ package models
 
 type ServiceUser struct {
 	User_Name string `json:"username"`
-	Password string `json:"password"`
-	Location string
-	IP_addr  string
+	Password  string `json:"password"`
+	Location  string
+	IP_addr   string
 }
 
 type ResponseStruct struct {
