@@ -10,20 +10,30 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Register new users
+var (
+	// registerGetUserByName and registerUserFunc allow tests to substitute
+	// database access during handler execution.
+	registerGetUserByName = db.GetUserByName
+	registerUserFunc      = db.RegisterUser
+)
+
+// RegisterHandler handles POST /register requests and creates new user
+// accounts when the payload is valid.
 func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
 
 	var user models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&user)
 	if err != nil {
 		http.Error(writer, "invalid json", http.StatusBadRequest)
+		return
 	}
 	if user.User_Name == "" || user.Password == "" {
 		http.Error(writer, "username and password required", http.StatusBadRequest)
+		return
 	}
 
 	// check if username exists in database
-	service_user, _ := db.GetUserByName(user.User_Name)
+	service_user, _ := registerGetUserByName(user.User_Name)
 
 	if service_user != nil { // service user should be nil for an non-existiant user
 		http.Error(writer, "username taken. pick another", http.StatusBadRequest)
@@ -44,7 +54,7 @@ func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
 	user.IP_addr = ip
 	user.Location = "Internet"
 
-	err = db.RegisterUser(user)
+	err = registerUserFunc(user)
 	if err != nil {
 		http.Error(writer, "Failed to register user", http.StatusInternalServerError)
 		return
