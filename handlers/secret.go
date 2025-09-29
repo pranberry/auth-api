@@ -1,4 +1,4 @@
-package secret
+package handlers
 
 import (
 	"fmt"

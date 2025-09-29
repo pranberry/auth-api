@@ -1,4 +1,4 @@
-package user
+package handlers
 
 import (
 	"encoding/json"
@@ -11,11 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-	 handler function
-		a http.Request gets intput from the client request...
-	    a http.ResponseWriter writes back to the client...headers, body, codes...
-*/
+
 func LoginHandler(writer http.ResponseWriter, request *http.Request) {
 	var login_user_data models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&login_user_data)

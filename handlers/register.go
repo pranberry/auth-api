@@ -1,17 +1,15 @@
-package user
+package handlers
 
 import (
 	"encoding/json"
-	"golang.org/x/crypto/bcrypt"
 	"jwt-auth/db"
 	"jwt-auth/models"
 	"net"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-- the *http.Request is, you guessed it, a pointer to the http.request object
-*/
 func RegisterHandler(writer http.ResponseWriter, request *http.Request) {
 	var user models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&user)

@@ -3,21 +3,19 @@ package main
 import (
 	"jwt-auth/config"
 	"jwt-auth/db"
-	"jwt-auth/secret"
-	"jwt-auth/user"
+	"jwt-auth/handlers"
 	"log"
 	"net/http"
 )
 
 func main() {
-	// HandleFunc is from the http lib
-	// associates a URL path with a function
+
 	http.HandleFunc("/health", health_handler)
 
-	http.HandleFunc("/login", user.LoginHandler)
-	http.HandleFunc("/register", user.RegisterHandler)
+	http.HandleFunc("/login", handlers.LoginHandler)
+	http.HandleFunc("/register", handlers.RegisterHandler)
 
-	http.HandleFunc("/secret", secret.SecretHandler)
+	http.HandleFunc("/secret", handlers.SecretHandler)
 
 	//err := db.InitDB("token_master", "jwt_users", "tokenPass", "auth-db")		// host name comes from docker-compose.yml
 	err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
@@ -25,9 +23,7 @@ func main() {
 		log.Fatal("died initilizing the db: ", err)
 	}
 
-	//listen on port 8080...blocking call
-	go http.ListenAndServe(":8080", nil)
-	go http.ListenAndServe(":8081", nil)
+	go http.ListenAndServe(":8976", nil)
 	select {}
 
 	/*
