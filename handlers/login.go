@@ -11,6 +11,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	// loginGetUserByName and createJWTFunc are overridden in tests to avoid
+	// hitting external dependencies.
+	loginGetUserByName = db.GetUserByName
+	createJWTFunc      = auth.CreateJWT
+)
+
+// LoginHandler processes POST /login requests and returns a JWT when the
+// provided credentials are valid.
 func LoginHandler(writer http.ResponseWriter, request *http.Request) {
 	var login_user_data models.ServiceUser
 	err := json.NewDecoder(request.Body).Decode(&login_user_data)
@@ -19,7 +28,7 @@ func LoginHandler(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	// check for user existance in db/mem
-	user_data, err := db.GetUserByName(login_user_data.User_Name)
+	user_data, err := loginGetUserByName(login_user_data.User_Name)
 
 	if err != nil {
 		http.Error(writer, "username not found. register first", http.StatusBadRequest)
@@ -32,7 +41,7 @@ func LoginHandler(writer http.ResponseWriter, request *http.Request) {
 		http.Error(writer, "Password is incorrect", http.StatusBadRequest)
 		return
 	} else {
-		jwt_resp, err := auth.CreateJWT(user_data.User_Name)
+		jwt_resp, err := createJWTFunc(user_data.User_Name)
 		if err != nil {
 			err := fmt.Sprintf("error creating jwt: %v", err)
 			http.Error(writer, err, http.StatusInternalServerError)

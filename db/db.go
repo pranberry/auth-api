@@ -13,8 +13,51 @@ import (
 	- func to ret created db obj
 */
 
-var ACTIVE_DB *sql.DB
+var (
+	// ACTIVE_DB holds the shared database connection used by the
+	// application.
+	ACTIVE_DB *sql.DB
+	// sqlOpen and prepare are overridable for tests to inject fakes.
+	sqlOpen = sql.Open
+	prepare = defaultPrepare
+)
 
+type rowScanner interface {
+	Scan(dest ...any) error
+}
+
+type statement interface {
+	QueryRow(args ...any) rowScanner
+	Exec(args ...any) (sql.Result, error)
+	Close() error
+}
+
+type sqlStmt struct {
+	stmt *sql.Stmt
+}
+
+func (s *sqlStmt) QueryRow(args ...any) rowScanner {
+	return s.stmt.QueryRow(args...)
+}
+
+func (s *sqlStmt) Exec(args ...any) (sql.Result, error) {
+	return s.stmt.Exec(args...)
+}
+
+func (s *sqlStmt) Close() error {
+	return s.stmt.Close()
+}
+
+func defaultPrepare(db *sql.DB, query string) (statement, error) {
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	return &sqlStmt{stmt: stmt}, nil
+}
+
+// InitDB configures the global database connection pool using the provided
+// credentials.
 func InitDB(user, dbname, password, host string) error {
 	// default host is localhost and port is 5432, i don't need to change that.
 	// dsn stands for DATA SOURCE NAME
@@ -27,7 +70,7 @@ func InitDB(user, dbname, password, host string) error {
 	// basically, it would create a local ACTIVE_DB, which dies after the func returns
 	// global ACTIVE_DB would stay unassigned
 	var err error
-	ACTIVE_DB, err = sql.Open("postgres", DSN)
+	ACTIVE_DB, err = sqlOpen("postgres", DSN)
 	if err != nil {
 		return fmt.Errorf("error opening db: %v", err)
 	}
@@ -39,18 +82,17 @@ func InitDB(user, dbname, password, host string) error {
 	return nil
 }
 
-// return db
+// GetDB returns the active database connection pool.
 func GetDB() *sql.DB {
 	return ACTIVE_DB
 }
 
-/*
-	- get the user record from the user's table
-*/
+// GetUserByName retrieves a user record from the USERS table using the supplied
+// username.
 func GetUserByName(username string) (*models.ServiceUser, error) {
 
 	db := GetDB()
-	stmt, err := db.Prepare("SELECT username, password, location, ip_addr FROM USERS WHERE USERNAME = $1")
+	stmt, err := prepare(db, "SELECT username, password, location, ip_addr FROM USERS WHERE USERNAME = $1")
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare statement: %v", err)
 	}
@@ -72,9 +114,10 @@ func GetUserByName(username string) (*models.ServiceUser, error) {
 
 }
 
+// RegisterUser inserts a new user record into the USERS table.
 func RegisterUser(newUser models.ServiceUser) error {
 	db := GetDB()
-	stmt, err := db.Prepare("INSERT INTO USERS (username, password, location, ip_addr) values ($1, $2, $3, $4)")
+	stmt, err := prepare(db, "INSERT INTO USERS (username, password, location, ip_addr) values ($1, $2, $3, $4)")
 	if err != nil {
 		return fmt.Errorf("failed to prepare statement: %v", err)
 	}
@@ -87,9 +130,11 @@ func RegisterUser(newUser models.ServiceUser) error {
 	return nil
 }
 
+// GetSecretKey fetches the signing secret for JWT issuance from the secrets
+// table.
 func GetSecretKey() ([]byte, error) {
 	db := GetDB()
-	stmt, err := db.Prepare("SELECT SECRET_KEY FROM secrets where project_name = 'go-jwt-auth'")
+	stmt, err := prepare(db, "SELECT SECRET_KEY FROM secrets where project_name = 'go-jwt-auth'")
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare statement: %v", err)
 	}
