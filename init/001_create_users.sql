@@ -20,7 +20,10 @@
 -- Tables are in a schema. Schema is in a database. Roles are system level
 
 -- Create a database named jwt_users;
--- CREATE DATABASE jwt_users;
+
+-- begin;
+-- CREATE DATABASE if not exists jwt_users;
+-- commit;
 
 BEGIN;
 CREATE TABLE IF NOT EXISTS users (
@@ -48,9 +51,9 @@ Create table IF NOT EXISTS secrets (
 COMMIT;
 
 -- lets get a different user than postgres to own everything. something more specific to the proj
-begin;
-CREATE ROLE token_master with login;
-commit;
+-- begin;
+-- CREATE ROLE if not exists token_master with login;
+-- commit;
 
 begin;
 alter database jwt_users owner to token_master;
@@ -61,7 +64,7 @@ commit;
 
 -- changed the users and tokens table, so had to drop them
 -- had to recreate, but then i also have to reapply ownerships
--- so creatign a schema, adding tables to that schema and letting token_master own schema
+-- so creating a schema, adding tables to that schema and letting token_master own schema
 begin;
 create schema if not exists jwt_auth;
 alter schema jwt_auth owner to token_master;

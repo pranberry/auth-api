@@ -22,16 +22,22 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		auth_header := r.Header.Get("Authorization")
-		auth_header, ok := strings.CutPrefix(auth_header, "Bearer ")
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			http.Error(w, "no auth token", http.StatusUnauthorized)
+			return
+		}
+		authHeader, ok := strings.CutPrefix(authHeader, "Bearer ")
 		if !ok {
 			log.Println("corrupt token format")
-			//http.Error(writer, "corrupt token format", http.StatusUnauthorized)
+			http.Error(w, "corrupt token format", http.StatusUnauthorized)
+			return
 		}
-		err := auth.ValidateJWT(auth_header)
+		err := auth.ValidateJWT(authHeader)
 		if err != nil {
-			err = fmt.Errorf("error validating token: %w\n", err)
+			err = fmt.Errorf("error validating token: %w", err)
 			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
 		}
 
 		next.ServeHTTP(w, r)

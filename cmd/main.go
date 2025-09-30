@@ -1,7 +1,6 @@
 package main
 
 import (
-	"auth-api/config"
 	"auth-api/db"
 	api "auth-api/handlers"
 	mw "auth-api/middleware"
@@ -19,9 +18,10 @@ func main() {
 	http.HandleFunc("/secret", mw.Logger(mw.CheckJwt(api.SecretHandler)))
 
 	//err := db.InitDB("token_master", "jwt_users", "tokenPass", "auth-db")		// host name comes from docker-compose.yml
-	err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
+	// err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
+	err := db.InitDB("token_master", "jwt_users", "eipu9ahKai2oo9phaib", "localhost")
 	if err != nil {
-		log.Printf("failed initilizing the db: %v", err)
+		log.Printf("failed initializing the db: %v", err)
 	}
 
 	http.ListenAndServe(":8976", nil)
