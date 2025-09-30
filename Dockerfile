@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 
 # Build binary
-RUN go build -o auth-api main.go
+RUN go build -o auth-api ./cmd/main.go
 
 # Final stage
 FROM alpine:latest
@@ -19,7 +19,7 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=builder /app/auth-api .
 
-EXPOSE 8080
+EXPOSE 8976
 
 ENTRYPOINT ["./auth-api"]
 

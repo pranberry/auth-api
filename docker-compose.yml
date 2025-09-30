@@ -10,8 +10,9 @@ services:
     ports:
       - "5432:5432"     # "local:container"
     volumes:
-      - pgdata:/var/lib/postgresql/data
-      - ./init:/docker-entrypoint-initdb.d
+      - ./init:/docker-entrypoint-initdb.d  # init location, flashes schema files located on create
+      - pgdata:/var/lib/postgresql/data     # persistent storage
+      
 
   api:
     build: .
@@ -20,7 +21,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:8080"
+      - "8976:8976"
 
 volumes:
   pgdata:
