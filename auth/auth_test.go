@@ -45,8 +45,9 @@ func TestCreateJWTSuccess(t *testing.T) {
 	if claims.Subject != "alice" {
 		t.Errorf("expected subject 'alice', got %s", claims.Subject)
 	}
-	if claims.Issuer != "SCDP" {
-		t.Errorf("expected issuer 'SCDP', got %s", claims.Issuer)
+
+	if claims.Issuer != getHostname() {
+		t.Errorf("expected issuer '%s', got %s", getHostname(), claims.Issuer)
 	}
 	if claims.ExpiresAt == nil || time.Until(claims.ExpiresAt.Time) > 16*time.Minute || time.Until(claims.ExpiresAt.Time) < 14*time.Minute {
 		t.Errorf("expected expiry about 15 minutes from now, got %v", claims.ExpiresAt)

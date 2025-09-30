@@ -177,7 +177,7 @@ func TestLoginHandlerSuccess(t *testing.T) {
 		return &models.ServiceUser{Username: username, Password: string(hashed)}, nil
 	}
 	createJWTFunc = func(username string) (auth.JWTResponse, error) {
-		return auth.JWTResponse{AccessToken: "token", TokenType: "bearer", Message: "Login Successful"}, nil
+		return auth.JWTResponse{AccessToken: "token", TokenType: "bearer"}, nil
 	}
 	t.Cleanup(func() {
 		loginGetUserByName = originalGet

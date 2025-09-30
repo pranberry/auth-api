@@ -13,7 +13,7 @@ func main() {
 
 	http.HandleFunc("/health", mw.Logger(health_handler))
 
-	http.HandleFunc("/login", mw.Logger(mw.CheckJwt(api.LoginHandler)))
+	http.HandleFunc("/login", mw.Logger(api.LoginHandler))
 	http.HandleFunc("/register", mw.Logger(api.RegisterHandler))
 
 	http.HandleFunc("/secret", mw.Logger(mw.CheckJwt(api.SecretHandler)))

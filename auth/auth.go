@@ -19,8 +19,6 @@ var (
 type JWTResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`
-	Message     string `json:"message,omitempty"`
-	HttpStatus  int
 }
 
 // CreateJWT creates a signed JWT for the provided username using the secret key

@@ -17,4 +17,5 @@ type Response struct {
 	Error   error  `json:"-"`
 	// http status of the response
 	Status int `json:"-"`
+	Data   any `json:"data,omitempty"`
 }

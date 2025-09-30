@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"jwt-auth/auth"
 	"jwt-auth/db"
 	"jwt-auth/models"
@@ -20,38 +19,67 @@ var (
 
 // LoginHandler processes POST /login requests and returns a JWT when the
 // provided credentials are valid.
-func LoginHandler(writer http.ResponseWriter, request *http.Request) {
-	var login_user_data models.ServiceUser
-	err := json.NewDecoder(request.Body).Decode(&login_user_data)
-	if err != nil {
-		http.Error(writer, "Request Denied", http.StatusBadRequest)
-		return
-	}
-	// check for user existance in db/mem
-	user_data, err := loginGetUserByName(login_user_data.Username)
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	if err != nil {
-		http.Error(writer, "username not found. register first", http.StatusBadRequest)
-		return
+	var resp = models.Response{
+		Status:  http.StatusUnauthorized,
+		Error:   nil,
+		Message: "not allowed",
 	}
-
-	// if user exists, validate password
-	err = bcrypt.CompareHashAndPassword([]byte(user_data.Password), []byte(login_user_data.Password))
-	if err != nil {
-		http.Error(writer, "Password is incorrect", http.StatusBadRequest)
-		return
-	} else {
-		jwt_resp, err := createJWTFunc(user_data.Username)
-		if err != nil {
-			err := fmt.Sprintf("error creating jwt: %v", err)
-			http.Error(writer, err, http.StatusInternalServerError)
-			return
+	
+	defer func() {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(resp.Status)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			resp.Error = err
+			http.Error(w, resp.Message, resp.Status)
 		}
-		jwt_resp.Message = "Login Successful"
-		writer.Header().Set("Content-Type", "application/json")
-		writer.WriteHeader(http.StatusOK)
-		json.NewEncoder(writer).Encode(jwt_resp)
-		return
+	}()
 
+	var loginUserData models.ServiceUser
+	err := json.NewDecoder(r.Body).Decode(&loginUserData)
+	if err != nil {
+		resp.Message = "request denied"
+		resp.Status = http.StatusBadRequest
+		resp.Error = err
+		return
 	}
+
+	// check for user existence in db/mem
+	userData, err := loginGetUserByName(loginUserData.Username)
+	if err != nil {
+		resp.Message = "username not found. register first"
+		resp.Error = err
+		resp.Status = http.StatusNotFound
+		// return
+	}
+
+	// just in case check...
+	if userData == nil{
+		userData = &models.ServiceUser{
+			Password: "123",
+		}
+	}
+	
+	// if user exists, validate password
+	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(loginUserData.Password))
+	if err != nil {
+		resp.Message = "password is incorrect"
+		resp.Error = err
+		resp.Status = http.StatusBadRequest
+		return
+	}
+
+	jwtResp, err := createJWTFunc(userData.Username)
+	if err != nil {
+		resp.Message = "failed to create jwt"
+		resp.Status = http.StatusInternalServerError
+		resp.Error = err
+		return
+	}
+	resp.Message = "login successful"
+	resp.Status = http.StatusOK
+	resp.Error = nil
+	resp.Data = jwtResp
+
 }
