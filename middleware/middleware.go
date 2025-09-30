@@ -1,7 +1,8 @@
 package middleware
 
 import (
-	"jwt-auth/auth"
+	"fmt"
+	"auth-api/auth"
 	"log"
 	"net/http"
 	"strings"
@@ -29,8 +30,8 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 		}
 		err := auth.ValidateJWT(auth_header)
 		if err != nil {
-			log.Printf("error validating token: %v\n", err)
-			//http.Error(w, fmt.Sprintf("error validating token: %v", err), http.StatusUnauthorized)
+			err = fmt.Errorf("error validating token: %w\n", err)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 		}
 
 		next.ServeHTTP(w, r)

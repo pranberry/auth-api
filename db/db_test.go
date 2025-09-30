@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"testing"
 
-	"jwt-auth/models"
+	"auth-api/models"
 )
 
 // stubConn implements the minimum driver.Conn interface needed for exercising

@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"jwt-auth/auth"
-	"jwt-auth/db"
-	"jwt-auth/models"
+	"auth-api/auth"
+	"auth-api/db"
+	"auth-api/models"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"

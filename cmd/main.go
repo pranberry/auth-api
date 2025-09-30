@@ -1,10 +1,10 @@
 package main
 
 import (
-	"jwt-auth/config"
-	"jwt-auth/db"
-	api "jwt-auth/handlers"
-	mw "jwt-auth/middleware"
+	"auth-api/config"
+	"auth-api/db"
+	api "auth-api/handlers"
+	mw "auth-api/middleware"
 	"log"
 	"net/http"
 )

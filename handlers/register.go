@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"jwt-auth/db"
-	"jwt-auth/models"
+	"auth-api/db"
+	"auth-api/models"
 	"net"
 	"net/http"
 

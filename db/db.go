@@ -3,7 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"jwt-auth/models"
+	"auth-api/models"
 
 	_ "github.com/lib/pq"
 )
@@ -135,7 +135,7 @@ func RegisterUser(newUser models.ServiceUser) error {
 // table.
 func GetSecretKey() ([]byte, error) {
 	db := GetDB()
-	stmt, err := prepare(db, "SELECT SECRET_KEY FROM secrets where project_name = 'go-jwt-auth'")
+	stmt, err := prepare(db, "SELECT SECRET_KEY FROM secrets where project_name = 'go-auth-api'")
 	if err != nil {
 		return nil, fmt.Errorf("failed to prepare statement: %v", err)
 	}

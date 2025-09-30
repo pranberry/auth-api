@@ -2,7 +2,7 @@ package auth
 
 import (
 	"fmt"
-	"jwt-auth/db"
+	"auth-api/db"
 	"os"
 	"time"
 

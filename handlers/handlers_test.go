@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"jwt-auth/auth"
-	"jwt-auth/models"
+	"auth-api/auth"
+	"auth-api/models"
 
 	"golang.org/x/crypto/bcrypt"
 )
