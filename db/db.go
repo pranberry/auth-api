@@ -104,7 +104,7 @@ func GetUserByName(username string) (*models.ServiceUser, error) {
 	var user_data models.ServiceUser
 	row := stmt.QueryRow(username)
 	err = row.Scan(
-		&user_data.User_Name, &user_data.Password, &user_data.Location, &user_data.IP_addr,
+		&user_data.Username, &user_data.Password, &user_data.Location, &user_data.IP_addr,
 	)
 
 	if err != nil {
@@ -123,7 +123,7 @@ func RegisterUser(newUser models.ServiceUser) error {
 	}
 	defer stmt.Close()
 
-	_, err = stmt.Exec(newUser.User_Name, newUser.Password, newUser.Location, newUser.IP_addr)
+	_, err = stmt.Exec(newUser.Username, newUser.Password, newUser.Location, newUser.IP_addr)
 	if err != nil {
 		return fmt.Errorf("failed to save user to db: %v", err)
 	}

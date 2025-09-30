@@ -203,7 +203,7 @@ func TestGetUserByName(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if user.User_Name != "alice" || user.Password != "hashed" || user.Location != "Earth" || user.IP_addr != "127.0.0.1" {
+	if user.Username != "alice" || user.Password != "hashed" || user.Location != "Earth" || user.IP_addr != "127.0.0.1" {
 		t.Fatalf("unexpected user data: %+v", user)
 	}
 	if !stmt.closed {
@@ -256,7 +256,7 @@ func TestRegisterUser(t *testing.T) {
 		prepare = originalPrepare
 	})
 
-	user := models.ServiceUser{User_Name: "alice", Password: "hashed", Location: "Earth", IP_addr: "127.0.0.1"}
+	user := models.ServiceUser{Username: "alice", Password: "hashed", Location: "Earth", IP_addr: "127.0.0.1"}
 	if err := RegisterUser(user); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

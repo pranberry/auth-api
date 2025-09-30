@@ -49,7 +49,7 @@ func TestRegisterHandlerSuccess(t *testing.T) {
 		return nil, errors.New("not found")
 	}
 	registerUserFunc = func(user models.ServiceUser) error {
-		if user.User_Name != "alice" || user.Location != "Internet" || user.IP_addr == "" {
+		if user.Username != "alice" || user.Location != "Internet" || user.IP_addr == "" {
 			t.Fatalf("unexpected user payload: %+v", user)
 		}
 		return nil
@@ -85,7 +85,7 @@ func TestRegisterHandlerSuccess(t *testing.T) {
 func TestRegisterHandlerUsernameTaken(t *testing.T) {
 	originalGet := registerGetUserByName
 	registerGetUserByName = func(username string) (*models.ServiceUser, error) {
-		return &models.ServiceUser{User_Name: username}, nil
+		return &models.ServiceUser{Username: username}, nil
 	}
 	t.Cleanup(func() {
 		registerGetUserByName = originalGet
@@ -100,7 +100,7 @@ func TestRegisterHandlerUsernameTaken(t *testing.T) {
 	RegisterHandler(rr, req)
 
 	res := rr.Result()
-	if res.StatusCode != http.StatusBadRequest {
+	if res.StatusCode != http.StatusConflict {
 		t.Fatalf("expected status 400, got %d", res.StatusCode)
 	}
 	body := readBody(t, res)
@@ -174,10 +174,10 @@ func TestLoginHandlerSuccess(t *testing.T) {
 		t.Fatalf("failed to hash password: %v", err)
 	}
 	loginGetUserByName = func(username string) (*models.ServiceUser, error) {
-		return &models.ServiceUser{User_Name: username, Password: string(hashed)}, nil
+		return &models.ServiceUser{Username: username, Password: string(hashed)}, nil
 	}
-	createJWTFunc = func(username string) (auth.JWTResponseStruct, error) {
-		return auth.JWTResponseStruct{AccessToken: "token", TokenType: "bearer", Message: "Login Successful"}, nil
+	createJWTFunc = func(username string) (auth.JWTResponse, error) {
+		return auth.JWTResponse{AccessToken: "token", TokenType: "bearer", Message: "Login Successful"}, nil
 	}
 	t.Cleanup(func() {
 		loginGetUserByName = originalGet
@@ -247,7 +247,7 @@ func TestLoginHandlerInvalidPassword(t *testing.T) {
 		t.Fatalf("failed to hash password: %v", err)
 	}
 	loginGetUserByName = func(username string) (*models.ServiceUser, error) {
-		return &models.ServiceUser{User_Name: username, Password: string(hashed)}, nil
+		return &models.ServiceUser{Username: username, Password: string(hashed)}, nil
 	}
 	t.Cleanup(func() {
 		loginGetUserByName = originalGet
@@ -276,10 +276,10 @@ func TestLoginHandlerTokenFailure(t *testing.T) {
 		t.Fatalf("failed to hash password: %v", err)
 	}
 	loginGetUserByName = func(username string) (*models.ServiceUser, error) {
-		return &models.ServiceUser{User_Name: username, Password: string(hashed)}, nil
+		return &models.ServiceUser{Username: username, Password: string(hashed)}, nil
 	}
-	createJWTFunc = func(username string) (auth.JWTResponseStruct, error) {
-		return auth.JWTResponseStruct{}, errors.New("fail")
+	createJWTFunc = func(username string) (auth.JWTResponse, error) {
+		return auth.JWTResponse{}, errors.New("fail")
 	}
 	t.Cleanup(func() {
 		loginGetUserByName = originalGet
