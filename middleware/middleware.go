@@ -68,7 +68,7 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 		err := auth.ValidateJWT(authHeader)
 		if err != nil {
 			resp.Error = fmt.Errorf("error validating token: %w", err)
-			resp.Message = resp.Error.Error()
+			resp.Message = "error validating token" // gonna opt for the generic form
 			return
 		}
 

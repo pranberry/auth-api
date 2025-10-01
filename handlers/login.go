@@ -70,7 +70,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		resp.Error = err
 		return
 	}
-	
+
 	resp.Message = "login successful"
 	resp.Status = http.StatusOK
 	resp.Error = nil

@@ -16,6 +16,6 @@ func SecretHandler(w http.ResponseWriter, r *http.Request) {
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	WriteResponse(w, &Response{
 		Message: "alive and well",
-		Status: http.StatusOK,
+		Status:  http.StatusOK,
 	})
 }

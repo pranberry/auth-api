@@ -58,7 +58,7 @@ func ValidateJWT(JWT string) error {
 
 	token, err := jwt.ParseWithClaims(JWT, claims, keyFunc)
 	if err != nil {
-		fmt.Printf("error: failed to parse token string: %v", err)
+		err = fmt.Errorf("error: failed to parse token string: %w", err)
 		return err
 	}
 

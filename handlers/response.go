@@ -19,9 +19,6 @@ func WriteResponse(w http.ResponseWriter, resp *Response) {
 type Response struct {
 	Message string `json:"message"`
 	Error   error  `json:"-"`
-	// http status of the response
-	Status int `json:"-"`
-	// JWTResponse only goes of if login was successful
-	//Auth *auth.JWTResponse `json:"auth2,omitempty"`
-	Data any               `json:"auth,omitempty"`
+	Status  int    `json:"-"` // http status of the response
+	Data    any    `json:"auth,omitempty"`
 }

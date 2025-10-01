@@ -17,6 +17,7 @@ var (
 	prepare = defaultPrepare
 )
 
+// The following abstractions were added by ChatGPT
 type rowScanner interface {
 	Scan(dest ...any) error
 }
@@ -53,12 +54,12 @@ func defaultPrepare(db *sql.DB, query string) (statement, error) {
 
 // InitDB configures the global database connection pool using the provided creds
 func InitDB(user, dbName, password, host string) error {
-	
+
 	DSN := fmt.Sprintf(
 		"user=%s dbname=%s password=%v host=%s sslmode=disable",
 		user, dbName, password, host,
 	)
-	
+
 	var err error
 	ACTIVE_DB, err = sqlOpen("postgres", DSN)
 	if err != nil {
