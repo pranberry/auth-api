@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"fmt"
 	"auth-api/db"
+	"fmt"
 	"os"
 	"time"
 

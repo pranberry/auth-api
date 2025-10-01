@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"auth-api/db"
 	"auth-api/models"
+	"encoding/json"
 	"net"
 	"net/http"
 

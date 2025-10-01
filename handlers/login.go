@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"auth-api/auth"
 	"auth-api/db"
 	"auth-api/models"
+	"encoding/json"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -26,7 +26,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		Error:   nil,
 		Message: "not allowed",
 	}
-	
+
 	defer func() {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(resp.Status)
@@ -55,12 +55,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// just in case check...
-	if userData == nil{
+	if userData == nil {
 		userData = &models.ServiceUser{
 			Password: "123",
 		}
 	}
-	
+
 	// if user exists, validate password
 	err = bcrypt.CompareHashAndPassword([]byte(userData.Password), []byte(loginUserData.Password))
 	if err != nil {

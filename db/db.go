@@ -1,9 +1,9 @@
 package db
 
 import (
+	"auth-api/models"
 	"database/sql"
 	"fmt"
-	"auth-api/models"
 
 	_ "github.com/lib/pq"
 )
