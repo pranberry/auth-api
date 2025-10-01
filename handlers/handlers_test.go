@@ -197,7 +197,7 @@ func TestLoginHandlerSuccess(t *testing.T) {
 		t.Fatalf("expected 200, got %d", res.StatusCode)
 	}
 	body := readBody(t, res)
-	if !bytes.Contains([]byte(body), []byte("Login Successful")) {
+	if !bytes.Contains([]byte(body), []byte("login successful")) {
 		t.Fatalf("unexpected body: %s", body)
 	}
 }
