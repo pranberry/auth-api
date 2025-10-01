@@ -18,7 +18,7 @@ func WriteResponse(w http.ResponseWriter, resp *Response) {
 // Response structs carries some often needed fields for middleware
 type Response struct {
 	Message string `json:"message"`
-	Error   error  `json:"-"`
+	Error   error  `json:"-"`	// could get rid of this field.
 	Status  int    `json:"-"` // http status of the response
 	Data    any    `json:"auth,omitempty"`
 }

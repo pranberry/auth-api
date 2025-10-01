@@ -17,7 +17,7 @@ type statusRecorder struct {
 	status int
 }
 
-// when WriteHeader is called, its updates both fields for statusRecorder
+// When WriteHeader is called, its updates both fields for statusRecorder
 func (r *statusRecorder) WriteHeader(status int) {
 	r.status = status
 	r.ResponseWriter.WriteHeader(status)
@@ -44,11 +44,7 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 		resp := handlers.Response{
 			Status:  http.StatusUnauthorized,
 			Message: "failed to validate auth token",
-			Error:   nil,
 		}
-
-		// write response on fail
-		defer handlers.WriteResponse(w, &resp)
 
 		// retrieve header
 		authHeader := r.Header.Get("Authorization")
@@ -56,22 +52,30 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 			resp.Error = fmt.Errorf("no auth token")
 			resp.Message = resp.Error.Error()
 			resp.Status = http.StatusBadRequest
+			handlers.WriteResponse(w, &resp)
 			return
 		}
+
+		// check if bearer token exists
 		authHeader, ok := strings.CutPrefix(authHeader, "Bearer ")
 		if !ok {
 			resp.Error = fmt.Errorf("corrupt token format")
 			resp.Message = resp.Error.Error()
 			resp.Status = http.StatusBadRequest
+			handlers.WriteResponse(w, &resp)
 			return
 		}
+
+		// validate the token
 		err := auth.ValidateJWT(authHeader)
 		if err != nil {
 			resp.Error = fmt.Errorf("error validating token: %w", err)
 			resp.Message = "error validating token" // gonna opt for the generic form
+			handlers.WriteResponse(w, &resp)
 			return
 		}
 
+		// all checks cleared, server the desired path
 		next.ServeHTTP(w, r)
 	})
 

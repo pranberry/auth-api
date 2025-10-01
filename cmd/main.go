@@ -27,10 +27,4 @@ func main() {
 
 	http.ListenAndServe(":8976", nil)
 
-	/*
-	   nil is the multiplexer...which is kinda like a switchboard..
-	   a multiplexer, sees the path, and call the specific handler function
-	   calling handleFunc add a rule to the multiplexer.
-	   there is a default multiplexer, and you can write a custom multiplexer
-	*/
 }
