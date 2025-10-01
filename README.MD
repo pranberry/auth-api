@@ -11,4 +11,4 @@ Creates and returns a JWT. Allows a user to access protected endpoints with a va
 ## Build
 
 - This project is containerized. Build with: `docker-compose up --build`
-- If to run the API with the debugger, use the `.env.local` file in the vscode's launch.json
+- Run the API with the vscode debugger, use the `.env.local` as `envFile` in `launch.json`
