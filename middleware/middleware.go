@@ -3,24 +3,27 @@ package middleware
 import (
 	"auth-api/auth"
 	"auth-api/handlers"
-	"auth-api/models"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 )
 
+// statusRecorder helps us bring back the response's http.status-code
+// Exclusively for middleware logging
 // Embedding is awesome!
 type statusRecorder struct {
 	http.ResponseWriter
 	status int
 }
 
+// when WriteHeader is called, its updates both fields for statusRecorder
 func (r *statusRecorder) WriteHeader(status int) {
 	r.status = status
 	r.ResponseWriter.WriteHeader(status)
 }
 
+// Log incoming Requests and outgoing responses
 func Logger(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +33,6 @@ func Logger(next http.HandlerFunc) http.HandlerFunc {
 		next.ServeHTTP(rec, r)
 
 		log.Printf("RESPONSE: %d on %s, on %s, from %v", rec.status, r.Method, r.URL.Path, r.RemoteAddr)
-		// how do i get the http.status sent from the request or write object?
 	})
 }
 
@@ -39,11 +41,10 @@ func CheckJwt(next http.HandlerFunc) http.HandlerFunc {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		resp := models.Response{
+		resp := handlers.Response{
 			Status:  http.StatusUnauthorized,
 			Message: "failed to validate auth token",
 			Error:   nil,
-			Data:    nil,
 		}
 
 		// write response on fail

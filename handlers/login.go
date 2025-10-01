@@ -21,20 +21,13 @@ var (
 // provided credentials are valid.
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	var resp = models.Response{
+	var resp = Response{
 		Status:  http.StatusUnauthorized,
 		Error:   nil,
 		Message: "not allowed",
 	}
 
-	defer func() {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(resp.Status)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			resp.Error = err
-			http.Error(w, resp.Message, resp.Status)
-		}
-	}()
+	defer WriteResponse(w, &resp)
 
 	var loginUserData models.ServiceUser
 	err := json.NewDecoder(r.Body).Decode(&loginUserData)
@@ -77,6 +70,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		resp.Error = err
 		return
 	}
+	
 	resp.Message = "login successful"
 	resp.Status = http.StatusOK
 	resp.Error = nil

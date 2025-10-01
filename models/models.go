@@ -11,11 +11,3 @@ type ServiceUser struct {
 	Location string
 	IP_addr  string
 }
-
-type Response struct {
-	Message string `json:"message"`
-	Error   error  `json:"-"`
-	// http status of the response
-	Status int `json:"-"`
-	Data   any `json:"data,omitempty"`
-}

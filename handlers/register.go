@@ -21,21 +21,13 @@ var (
 // accounts when the payload is valid.
 func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
-	var resp = models.Response{
+	var resp = Response{
 		Status:  http.StatusUnauthorized,
 		Error:   nil,
 		Message: "not allowed",
 	}
 
-	// close up request after return
-	defer func() {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(resp.Status)
-		if err := json.NewEncoder(w).Encode(resp); err != nil {
-			resp.Error = err
-			http.Error(w, resp.Message, resp.Status)
-		}
-	}()
+	defer WriteResponse(w, &resp)
 
 	var user models.ServiceUser
 
@@ -84,10 +76,9 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		resp.Message = "failed to register user"
 		resp.Status = http.StatusInternalServerError
 		return
-	} else {
-		resp.Message = "user created successfully. proceed to login"
-		resp.Status = http.StatusCreated
 	}
+	resp.Message = "user created successfully. proceed to login"
+	resp.Status = http.StatusCreated
 }
 
 func getLocation() string {
