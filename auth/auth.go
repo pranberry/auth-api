@@ -62,12 +62,10 @@ func ValidateJWT(JWT string) error {
 		return err
 	}
 
-	if token.Valid {
-		// TODO: if token is valid, bump the expiry
-		return nil
-	} else {
+	if !token.Valid {
 		return fmt.Errorf("token is invalid")
 	}
+	return nil
 }
 
 func getHostname() string {

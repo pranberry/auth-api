@@ -1,6 +1,7 @@
 package main
 
 import (
+	"auth-api/config"
 	"auth-api/db"
 	api "auth-api/handlers"
 	mw "auth-api/middleware"
@@ -10,18 +11,18 @@ import (
 
 func main() {
 
-	http.HandleFunc("/health", mw.Logger(health_handler))
+	http.HandleFunc("/health", mw.Logger(api.HealthHandler))
 
 	http.HandleFunc("/login", mw.Logger(api.LoginHandler))
 	http.HandleFunc("/register", mw.Logger(api.RegisterHandler))
 
 	http.HandleFunc("/secret", mw.Logger(mw.CheckJwt(api.SecretHandler)))
 
-	//err := db.InitDB("token_master", "jwt_users", "tokenPass", "auth-db")		// host name comes from docker-compose.yml
-	// err := db.InitDB(config.User, config.Dbname, config.Password, config.Host)
-	err := db.InitDB("token_master", "jwt_users", "eipu9ahKai2oo9phaib", "localhost")
+	// Initialize the DB. All these values live in the .env or .env.local
+	err := db.InitDB(config.User, config.DbName, config.Password, config.Host)
+
 	if err != nil {
-		log.Printf("failed initializing the db: %v", err)
+		log.Fatalf("failed initializing the db: %v", err)
 	}
 
 	http.ListenAndServe(":8976", nil)
@@ -32,8 +33,4 @@ func main() {
 	   calling handleFunc add a rule to the multiplexer.
 	   there is a default multiplexer, and you can write a custom multiplexer
 	*/
-}
-
-func health_handler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("<h1>ALIVE AND WELL...ish</h1>\n"))
 }

@@ -8,12 +8,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-/*
-	What this file is for:
-	- init func: conn to db and create a db obj
-	- func to ret created db obj
-*/
-
 var (
 	// ACTIVE_DB holds the shared database connection used by the
 	// application.
@@ -57,19 +51,14 @@ func defaultPrepare(db *sql.DB, query string) (statement, error) {
 	return &sqlStmt{stmt: stmt}, nil
 }
 
-// InitDB configures the global database connection pool using the provided
-// credentials.
-func InitDB(user, dbname, password, host string) error {
-	// default host is localhost and port is 5432, i don't need to change that.
-	// dsn stands for DATA SOURCE NAME
+// InitDB configures the global database connection pool using the provided creds
+func InitDB(user, dbName, password, host string) error {
+	
 	DSN := fmt.Sprintf(
 		"user=%s dbname=%s password=%v host=%s sslmode=disable",
-		user, dbname, password, host,
+		user, dbName, password, host,
 	)
-	// open db
-	// added this because the := operator with un-explicitly declared err was leading to a shadowed ACTIve_db
-	// basically, it would create a local ACTIVE_DB, which dies after the func returns
-	// global ACTIVE_DB would stay unassigned
+	
 	var err error
 	ACTIVE_DB, err = sqlOpen("postgres", DSN)
 	if err != nil {
@@ -131,8 +120,7 @@ func RegisterUser(newUser models.ServiceUser) error {
 	return nil
 }
 
-// GetSecretKey fetches the signing secret for JWT issuance from the secrets
-// table.
+// GetSecretKey fetches the signing secret for JWT issuance from the secrets table.
 func GetSecretKey() ([]byte, error) {
 	db := GetDB()
 	stmt, err := prepare(db, "SELECT SECRET_KEY FROM secrets where project_name = 'go-auth-api'")
