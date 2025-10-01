@@ -10,6 +10,9 @@ RUN go mod download
 # Copy source
 COPY . .
 
+# Copy assets specifically. src dest. Paths relative to Workdir above
+COPY assets/ ./assets/
+
 # Build binary
 RUN go build -o auth-api ./cmd/main.go
 

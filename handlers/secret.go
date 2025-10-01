@@ -8,12 +8,12 @@ import (
 func SecretHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/gif")
 	w.WriteHeader(http.StatusOK)
-	filePath := "assets/hamster_dance.gif"
+	filePath := "/app/assets/hamster_dance.gif"
 	http.ServeFile(w, r, filePath)
 }
 
 // Serve secret data
-func SecretHandler2(w http.ResponseWriter, r *http.Request) {
+func SecretHandlerTest(w http.ResponseWriter, r *http.Request) {
 
 	anonStruct := []struct{
 		Secret string	`json:"secret,omitempty"`
